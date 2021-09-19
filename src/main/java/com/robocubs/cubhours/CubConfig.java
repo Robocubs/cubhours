@@ -27,4 +27,8 @@ import com.noahhusby.lib.application.config.Config;
  */
 @Config()
 public class CubConfig {
+    @Config.Comment({
+            "Enable external scanner mode [E.g. Barcode]"
+    })
+    public static boolean scan = true;
 }
