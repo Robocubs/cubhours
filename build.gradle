@@ -34,7 +34,7 @@ ext {
     cubhoursVersion = "2.0." + ('git rev-list --count HEAD'.execute().text.trim())
     husbyVersion = "0.1.70"
     gsonVersion = "2.8.8"
-    jfoenixVersion = "9.0.8"
+    jfoenixVersion = "9.0.10"
     firebaseVersion = '8.0.1'
     guavaVersion = "30.1.1-jre"
     lombokVersion = "1.18.20"
