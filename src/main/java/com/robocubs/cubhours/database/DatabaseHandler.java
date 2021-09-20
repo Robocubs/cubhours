@@ -31,7 +31,7 @@ import java.io.IOException;
  */
 public class DatabaseHandler {
     @Getter
-    private static DatabaseHandler instance = new DatabaseHandler();
+    private static final DatabaseHandler instance = new DatabaseHandler();
 
     @Getter
     private Firebase firebase = null;

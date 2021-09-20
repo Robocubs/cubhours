@@ -12,7 +12,7 @@ public class TimedTrigger {
     private final int time;
     private final TimeUnit unit;
 
-    private ScheduledExecutorService executor = CubUtil.newSingleThreadScheduledExecutor("trigger");
+    private final ScheduledExecutorService executor = CubUtil.newSingleThreadScheduledExecutor("trigger");
 
     ScheduledFuture<?> future;
 
@@ -30,9 +30,6 @@ public class TimedTrigger {
     }
 
     public boolean isActive() {
-        if (future != null && !future.isDone()) {
-            return true;
-        }
-        return false;
+        return future != null && !future.isDone();
     }
 }

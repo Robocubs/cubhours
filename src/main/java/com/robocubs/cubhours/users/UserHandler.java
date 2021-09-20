@@ -30,7 +30,7 @@ public class UserHandler {
     @Getter
     private static final UserHandler instance = new UserHandler();
 
-    private Map<Integer, User> users = Maps.newHashMap();
+    private final Map<Integer, User> users = Maps.newHashMap();
 
     private UserHandler() {
     }
@@ -105,7 +105,7 @@ public class UserHandler {
      * @return {@link User} instance if exists, null if not
      */
     public User getUser(@NonNull String id) {
-        if(id.equals("")) {
+        if (id.equals("")) {
             return null;
         }
         return getUser(Integer.parseInt(id));

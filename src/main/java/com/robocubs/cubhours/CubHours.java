@@ -38,7 +38,7 @@ import java.util.Map;
 public class CubHours extends Application {
 
     @Getter
-    private static CubLogger logger = new CubLogger();
+    private static final CubLogger logger = new CubLogger();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -58,6 +58,9 @@ public class CubHours extends Application {
         DatabaseHandler.getInstance().getFirebase().setDocument("test", "2123456", data);
     }
 
+    /**
+     * A hack to make launching JavaFX applications compatible with shadow jars
+     */
     public static void main(String[] args) {
         CubHours.launch(args);
     }

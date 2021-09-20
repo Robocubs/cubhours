@@ -33,7 +33,7 @@ public class TimeManager {
     private TimeManager() {
     }
 
-    private ArrayList<TimePacket> userTimeTracker = new ArrayList<>();
+    private final ArrayList<TimePacket> userTimeTracker = new ArrayList<>();
 
     public void startTracker(String id, String name) {
         userTimeTracker.add(new TimePacket(name, id));

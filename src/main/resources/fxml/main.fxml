@@ -28,9 +28,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox prefHeight="1440.0" prefWidth="2160.0" style="-fx-background-color: #E1E2E1;"
-      xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.robocubs.cubhours.gui.GUIController">
+<VBox prefHeight="1440.0" prefWidth="2160.0" style="-fx-background-color: #E1E2E1;" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.robocubs.cubhours.gui.GUIController">
     <children>
         <AnchorPane VBox.vgrow="ALWAYS">
             <children>

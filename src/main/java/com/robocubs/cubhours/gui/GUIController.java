@@ -79,7 +79,7 @@ public class GUIController implements javafx.fxml.Initializable {
      * Requests a new submission from the scanner
      */
     public void newScanEntry() {
-        if(!CubConfig.scan) {
+        if (!CubConfig.scan) {
             return;
         }
         CubUtil.newSingleThreadScheduledExecutor("scan-entry").schedule(this::submit, 200, TimeUnit.MILLISECONDS);
@@ -90,7 +90,7 @@ public class GUIController implements javafx.fxml.Initializable {
      * Fetches the user based upon value from input method
      */
     public void submit() {
-        if(entryType == EntryType.SCAN) {
+        if (entryType == EntryType.SCAN) {
             try {
                 if (!id_entry.getText().equals("")) {
                     submitId = String.valueOf(Integer.parseInt(id_entry.getText()));
@@ -103,7 +103,7 @@ public class GUIController implements javafx.fxml.Initializable {
         }
         id_entry.setText("");
         User user = UserHandler.getInstance().getUser(submitId);
-        if(user != null) {
+        if (user != null) {
             interactionClock.execute();
             id_print.setText(String.valueOf(user.getId()));
             id_info.setText(String.format("User: %s", user.getName()));
@@ -123,6 +123,7 @@ public class GUIController implements javafx.fxml.Initializable {
 
     /**
      * Displays an error in the reset frame
+     *
      * @param error
      * @param head
      */
@@ -150,9 +151,9 @@ public class GUIController implements javafx.fxml.Initializable {
      * Renders the input frame from the current status
      */
     private void renderInputFrame() {
-        if(interactionClock.isActive()) {
+        if (interactionClock.isActive()) {
             showControls();
-        } else if(notifierClock.isActive()) {
+        } else if (notifierClock.isActive()) {
             hideControls();
         } else {
             id_info.setText("");
@@ -215,7 +216,7 @@ public class GUIController implements javafx.fxml.Initializable {
         scanMessage = CubConfig.scan ? "Enter or scan an ID #" : "Enter an ID #";
 
         CubUtil.newSingleThreadScheduledExecutor("focus-checker").scheduleAtFixedRate(() -> {
-            if(!id_entry.isFocused()) {
+            if (!id_entry.isFocused()) {
                 Platform.runLater(() -> id_entry.requestFocus());
             }
         }, 0, 500, TimeUnit.MILLISECONDS);
