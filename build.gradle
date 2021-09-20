@@ -57,4 +57,10 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 }
 
+shadowJar {
+    manifest {
+        attributes( 'Implementation-Version': "${version}" )
+    }
+}
+
 mainClassName = 'com.robocubs.cubhours.CubHoursLauncher'

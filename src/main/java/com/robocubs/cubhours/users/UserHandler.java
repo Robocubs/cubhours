@@ -105,6 +105,9 @@ public class UserHandler {
      * @return {@link User} instance if exists, null if not
      */
     public User getUser(@NonNull String id) {
+        if(id.equals("")) {
+            return null;
+        }
         return getUser(Integer.parseInt(id));
     }
 
