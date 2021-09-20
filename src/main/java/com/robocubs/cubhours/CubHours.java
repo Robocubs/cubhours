@@ -43,13 +43,13 @@ public class CubHours extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         logger.info(String.format("Loading CubHours %s", Constants.VERSION));
+        Configuration configuration = Configuration.of(CubConfig.class);
+        configuration.sync(CubConfig.class);
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
         primaryStage.setTitle("CubHours " + Constants.VERSION);
         primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
         primaryStage.show();
 
-        Configuration configuration = Configuration.of(CubConfig.class);
-        configuration.sync(CubConfig.class);
         DatabaseHandler.getInstance().start();
 
         Map<String, Object> data = Maps.newHashMap();
