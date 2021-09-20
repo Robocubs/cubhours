@@ -20,6 +20,7 @@
 
 package com.robocubs.cubhours.database;
 
+import com.robocubs.cubhours.CubHours;
 import lombok.Getter;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class DatabaseHandler {
     public void start() throws IOException {
         File credentials = new File(System.getProperty("user.dir"), "credentials.json");
         if (!credentials.exists()) {
-            //TODO: Log
+            CubHours.getLogger().warning("Failed to initialize firebase! Please confirm that the credentials are configured correctly.");
             return;
         }
         firebase = new Firebase(credentials);

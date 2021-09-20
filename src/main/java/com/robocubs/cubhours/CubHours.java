@@ -28,6 +28,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.Getter;
 
 import java.util.Map;
 
@@ -36,10 +37,14 @@ import java.util.Map;
  */
 public class CubHours extends Application {
 
+    @Getter
+    private static CubLogger logger = new CubLogger();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+        logger.info(String.format("Loading CubHours %s", Constants.VERSION));
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-        primaryStage.setTitle("CubHours V2");
+        primaryStage.setTitle("CubHours " + Constants.VERSION);
         primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
         primaryStage.show();
 
