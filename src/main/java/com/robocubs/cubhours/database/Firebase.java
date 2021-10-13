@@ -20,19 +20,24 @@
 
 package com.robocubs.cubhours.database;
 
+import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.QuerySnapshot;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class Firebase {
+public class Firebase implements Closeable {
 
     @Getter
     private Firestore database = null;
@@ -69,5 +74,31 @@ public class Firebase {
     public void removeDocument(@NonNull String collection, @NonNull String document) {
         CollectionReference reference = database.collection(collection);
         reference.document(document).delete();
+    }
+
+    public DocumentReference getDocument(@NonNull String collection, @NonNull String document) {
+        return database.collection(collection).document(document);
+    }
+
+    public <T> T getDocumentAs(@NonNull String collection, @NonNull String document, @NonNull Class<T> clazz) throws Exception {
+        DocumentReference docRef = getDocument(collection, document);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+        DocumentSnapshot documentSnapshot = future.get();
+        if (documentSnapshot.exists()) {
+            return documentSnapshot.toObject(clazz);
+        }
+        return null;
+    }
+
+    @SneakyThrows
+    public boolean doesCollectionExist(@NonNull String collection) {
+        QuerySnapshot snapshot = database.collection(collection).get().get();
+        return !snapshot.isEmpty();
+    }
+
+    @Override
+    @SneakyThrows
+    public void close() {
+        database.close();
     }
 }

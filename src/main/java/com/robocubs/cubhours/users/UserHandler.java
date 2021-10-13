@@ -21,8 +21,11 @@
 package com.robocubs.cubhours.users;
 
 import com.google.api.client.util.Maps;
+import com.robocubs.cubhours.CubHours;
+import com.robocubs.cubhours.database.DatabaseHandler;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
 import java.util.Map;
 
@@ -118,7 +121,8 @@ public class UserHandler {
      * @param id of the user
      * @return {@link User} instance if exists, null if not
      */
+    @SneakyThrows
     public User getUser(Integer id) {
-        return users.get(id);
+        return DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", String.valueOf(id), User.class);
     }
 }

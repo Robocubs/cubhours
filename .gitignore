@@ -136,6 +136,8 @@ $RECYCLE.BIN/
 .gradle
 /build/
 
+/test/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -232,4 +234,4 @@ modules.xml
 /.idea_modules/
 
 # Cursive Clojure plugin
-/.idea/replstate.xml
+/.idea/replstate.xml!/test/

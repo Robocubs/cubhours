@@ -20,9 +20,10 @@
 
 package com.robocubs.cubhours;
 
-import com.google.api.client.util.Maps;
+import com.google.gson.Gson;
 import com.noahhusby.lib.application.config.Configuration;
 import com.robocubs.cubhours.database.DatabaseHandler;
+import com.robocubs.cubhours.users.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -45,17 +46,15 @@ public class CubHours extends Application {
         logger.info(String.format("Loading CubHours %s", Constants.VERSION));
         Configuration configuration = Configuration.of(CubConfig.class);
         configuration.sync(CubConfig.class);
+
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
         primaryStage.setTitle("CubHours " + Constants.VERSION);
         primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
         primaryStage.show();
 
         DatabaseHandler.getInstance().start();
-
-        Map<String, Object> data = Maps.newHashMap();
-        data.put("a", true);
-        data.put("b", 123456);
-        DatabaseHandler.getInstance().getFirebase().setDocument("test", "2123456", data);
+        User user = DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", "211694", User.class);
+        System.out.println(new Gson().toJson(user));
     }
 
     /**

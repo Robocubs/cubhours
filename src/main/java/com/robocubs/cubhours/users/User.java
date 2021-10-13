@@ -20,18 +20,20 @@
 
 package com.robocubs.cubhours.users;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class User {
-    private final int id;
-    private final String name;
-    private final Type type;
-    private final String email;
+    private int id;
+    private String name;
+    private Type type;
 
-    enum Type {
+    public enum Type {
         STUDENT, COACH
     }
 }

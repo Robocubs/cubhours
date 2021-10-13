@@ -20,8 +20,11 @@
 
 package com.robocubs.cubhours.database;
 
+import com.google.gson.Gson;
 import com.robocubs.cubhours.CubHours;
+import com.robocubs.cubhours.users.User;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +46,24 @@ public class DatabaseHandler {
             return;
         }
         firebase = new Firebase(credentials);
+        initialize();
     }
 
+    private void initialize() {
+        CubHours.getLogger().info("Starting to initialize the database");
+        if(!firebase.doesCollectionExist("users")) {
+            firebase.setDocument("users", "123456", new User(123456, "Sample Student", User.Type.STUDENT));
+        }
+        fetchUserCache();
+        CubHours.getLogger().info("Finished initializing the database");
+    }
+
+    @SneakyThrows
+    private void fetchUserCache() {
+
+    }
+
+    public void close() {
+        firebase.close();
+    }
 }
