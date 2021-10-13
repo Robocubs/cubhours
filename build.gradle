@@ -32,7 +32,7 @@ javafx {
 
 ext {
     cubhoursVersion = "2.0." + ('git rev-list --count HEAD'.execute().text.trim())
-    husbyVersion = "0.1.73"
+    husbyVersion = "0.1.77"
     gsonVersion = "2.8.8"
     jfoenixVersion = "9.0.10"
     firebaseVersion = '8.1.0'
