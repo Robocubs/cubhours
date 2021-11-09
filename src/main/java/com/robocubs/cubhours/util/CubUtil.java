@@ -25,10 +25,13 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.composition.MarkdownTextObject;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.composition.PlainTextObject;
 import com.slack.api.model.block.composition.TextObject;
+import com.slack.api.model.block.element.BlockElement;
+import com.slack.api.model.block.element.ButtonElement;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -68,6 +71,26 @@ public class CubUtil {
     public static OptionObject composeOptionObject(String text, String value, String description, String url) {
         PlainTextObject descriptionTextObject = description == null ? null : new PlainTextObject(description, true);
         return new OptionObject(new MarkdownTextObject(text, false), value, descriptionTextObject, url);
+    }
+
+    public static SectionBlock composeSectionBlock(String text) {
+        return composeSectionBlock(text, null);
+    }
+
+    public static SectionBlock composeSectionBlock(String text, String blockId) {
+        return composeSectionBlock(text, blockId, null);
+    }
+
+    public static SectionBlock composeSectionBlock(String text, String blockId, BlockElement element) {
+        return new SectionBlock(new MarkdownTextObject(text, false), blockId, null, element);
+    }
+
+    public static ButtonElement composeButtonElement(String text, String actionId) {
+        return composeButtonElement(text, actionId, null, null, null);
+    }
+
+    public static ButtonElement composeButtonElement(String text, String actionId, String url, String value, String style) {
+        return new ButtonElement(new PlainTextObject(text, true), actionId, url, value, style, null);
     }
 
     public static JsonElement getBlock(String block) {

@@ -20,20 +20,42 @@
 
 package com.robocubs.cubhours.slack;
 
-import com.slack.api.bolt.App;
-import com.slack.api.bolt.context.builtin.DefaultContext;
-import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
-import com.slack.api.bolt.request.builtin.ViewClosedRequest;
-import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
-import com.slack.api.bolt.response.Response;
+import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewClose;
+import com.slack.api.model.view.ViewSubmit;
+import com.slack.api.model.view.ViewTitle;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Noah Husby
  */
-public interface IModalHandler {
-    Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback);
+@RequiredArgsConstructor
+@AllArgsConstructor
+public abstract class Modal {
+    protected final String title;
+    protected final String callback;
+    protected String submit = "Done";
+    protected String close = "Close";
+    protected String privateMetadata;
 
-    Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback);
+    protected abstract void setup(List<LayoutBlock> blocks);
 
-    String[] getModalCallbacks();
+    public View view() {
+        View view = new View();
+        view.setType("modal");
+        view.setCallbackId(callback);
+        view.setTitle(new ViewTitle("plain_text", title, true));
+        view.setSubmit(new ViewSubmit("plain_text", submit, true));
+        view.setClose(new ViewClose("plain_text", close, true));
+        view.setPrivateMetadata(privateMetadata);
+        List<LayoutBlock> blocks = new ArrayList<>();
+        setup(blocks);
+        view.setBlocks(blocks);
+        return view;
+    }
 }

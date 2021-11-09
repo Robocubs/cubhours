@@ -18,22 +18,31 @@
  *
  */
 
-package com.robocubs.cubhours.slack;
+package com.robocubs.cubhours.slack.modals;
 
-import com.slack.api.bolt.App;
-import com.slack.api.bolt.context.builtin.DefaultContext;
-import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
-import com.slack.api.bolt.request.builtin.ViewClosedRequest;
-import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
-import com.slack.api.bolt.response.Response;
+import com.robocubs.cubhours.CubConfig;
+import com.robocubs.cubhours.slack.Modal;
+import com.robocubs.cubhours.util.CubUtil;
+import com.slack.api.model.block.DividerBlock;
+import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.element.ButtonElement;
+
+import java.util.List;
 
 /**
  * @author Noah Husby
  */
-public interface IModalHandler {
-    Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback);
+public class SettingsModal extends Modal {
+    public SettingsModal() {
+        super(":gear: Settings", "config-settings");
+    }
 
-    Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback);
-
-    String[] getModalCallbacks();
+    @Override
+    protected void setup(List<LayoutBlock> blocks) {
+        blocks.add(new DividerBlock());
+        {
+            ButtonElement element = CubUtil.composeButtonElement(CubConfig.cloudSettings.doorbell ? ":white_check_mark: Enabled" : ":x: Disabled", "config-settings-doorbell");
+            blocks.add(CubUtil.composeSectionBlock(":bell: *Doorbell*\nToggle the doorbell command", null, element));
+        }
+    }
 }
