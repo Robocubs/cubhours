@@ -25,6 +25,11 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.slack.api.model.block.composition.MarkdownTextObject;
+import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
+import com.slack.api.model.block.element.CheckboxesElement;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -41,6 +46,33 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @UtilityClass
 public class CubUtil {
+
+    public static TextObject composeTextObject(String type, String text) {
+        return new TextObject() {
+            @Override
+            public String getText() {
+                return text;
+            }
+
+            @Override
+            public String getType() {
+                return type;
+            }
+        };
+    }
+
+    public static OptionObject composeOptionObject(String text, String value) {
+        return composeOptionObject(text, value, null);
+    }
+
+    public static OptionObject composeOptionObject(String text, String value, String description) {
+        return composeOptionObject(text, value, description, null);
+    }
+
+    public static OptionObject composeOptionObject(String text, String value, String description, String url) {
+        PlainTextObject descriptionTextObject = description == null ? null : new PlainTextObject(description, true);
+        return new OptionObject(new MarkdownTextObject(text, false), value, descriptionTextObject, url);
+    }
 
     public static JsonElement getBlock(String block) {
         return getBlock(block, null);
