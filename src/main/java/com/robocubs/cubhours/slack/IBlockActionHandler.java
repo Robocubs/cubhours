@@ -18,44 +18,15 @@
  *
  */
 
-package com.robocubs.cubhours.slack.commands;
+package com.robocubs.cubhours.slack;
 
-import com.robocubs.cubhours.slack.IBlockActionHandler;
-import com.robocubs.cubhours.slack.SlackCommand;
-import com.robocubs.cubhours.util.CubUtil;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.context.builtin.ActionContext;
-import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.response.Response;
 
-import java.io.IOException;
+public interface IBlockActionHandler {
+    Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id);
 
-/**
- * @author Noah Husby
- */
-public class ConfigCommand extends SlackCommand implements IBlockActionHandler {
-    @Override
-    public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
-        return context.ack(CubUtil.getBlock("config"));
-    }
-
-    @Override
-    public String getName() {
-        return "config";
-    }
-
-    @Override
-    public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
-        if(id.equals("done")) {
-
-        }
-        return context.ack();
-    }
-
-    @Override
-    public String[] getBlockActionIds() {
-        return new String[]{ "done" };
-    }
+    String[] getBlockActionIds();
 }

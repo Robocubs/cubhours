@@ -1,0 +1,37 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Hey there :wave: Thank you for using CubHours! I'm here to help you manage your team's time contributions.\nHere's a few commands to know:"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:one: Use the `/doorbell` command*. Type `/doorbell` to ring the doorbell."
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:two: Setup your account.* Type `/setup` to configure your ID for the scanner."
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": ":question: Get help at any time with `/help`"
+                }
+            ]
+        }
+    ]
+}

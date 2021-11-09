@@ -1,0 +1,40 @@
+{
+    "blocks": [
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": ":gear: Settings",
+                        "emoji": true
+                    },
+                    "value": "click_me_123",
+                    "action_id": "actionId-0"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": ":bust_in_silhouette: Users",
+                        "emoji": true
+                    },
+                    "value": "click_me_123",
+                    "action_id": "actionId-1"
+                },
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Done",
+                        "emoji": true
+                    },
+                    "value": "click_me_123",
+                    "action_id": "config-done"
+                }
+            ]
+        }
+    ]
+}

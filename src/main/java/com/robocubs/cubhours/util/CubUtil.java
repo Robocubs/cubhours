@@ -21,8 +21,14 @@
 package com.robocubs.cubhours.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,6 +38,15 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @UtilityClass
 public class CubUtil {
+
+    @SneakyThrows
+    public static JsonElement getBlock(String block) {
+        try (Reader reader = new InputStreamReader(CubUtil.class.getResourceAsStream("/blocks/" + block + ".json"))) {
+            return new Gson().fromJson(reader, JsonElement.class);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
     public static ExecutorService newSingleThreadExecutor(String name) {
         return Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());

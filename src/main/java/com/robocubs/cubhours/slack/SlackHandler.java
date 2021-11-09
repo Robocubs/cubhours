@@ -24,6 +24,8 @@ import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.CubHours;
+import com.robocubs.cubhours.slack.commands.ConfigCommand;
+import com.robocubs.cubhours.slack.commands.HelpCommand;
 import com.robocubs.cubhours.slack.commands.InfoCommand;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
@@ -53,7 +55,9 @@ public class SlackHandler {
         app = new App(config);
 
         registerCommands(Lists.newArrayList(
-                new InfoCommand()
+                new InfoCommand(),
+                new HelpCommand(),
+                new ConfigCommand()
         ));
 
         new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).start();
@@ -64,6 +68,11 @@ public class SlackHandler {
             CubHours.getLogger().info(req.getPayload().getUserName() + " triggered a slack command: /" + command.getName());
             return command.onCommand(app, req, ctx);
         });
+        if(command instanceof IBlockActionHandler) {
+            for(String id : ((IBlockActionHandler) command).getBlockActionIds()) {
+                app.blockAction(command.getName() + "-" + id, (req, ctx) -> ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id));
+            }
+        }
     }
 
     public void registerCommands(List<SlackCommand> commandList) {
