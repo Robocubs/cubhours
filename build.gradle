@@ -38,6 +38,9 @@ ext {
     firebaseVersion = '8.1.0'
     guavaVersion = "31.0.1-jre"
     lombokVersion = "1.18.22"
+    slackBoltVersion = "1.13.0"
+    websocketVersion = "1.1"
+    tyrusStandaloneClientVersion = "1.17"
 }
 
 version "$cubhoursVersion"
@@ -53,6 +56,9 @@ dependencies {
     implementation "com.google.code.gson:gson:$gsonVersion"
     implementation "com.noahhusby.lib:application:$husbyVersion"
     implementation "com.google.guava:guava:$guavaVersion"
+    implementation "com.slack.api:bolt-socket-mode:$slackBoltVersion"
+    implementation("javax.websocket:javax.websocket-api:$websocketVersion")
+    implementation("org.glassfish.tyrus.bundles:tyrus-standalone-client:$tyrusStandaloneClientVersion")
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 }
