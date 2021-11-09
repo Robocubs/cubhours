@@ -20,6 +20,20 @@
 
 package com.robocubs.cubhours.users;
 
-public enum UserPermissions {
-    ADMIN, SETTINGS, USERS, ROLES, CLEAR_SESSION
+import com.google.api.client.util.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+/**
+ * @author Noah Husby
+ */
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class Role {
+    private String name;
+    private List<UserPermission> permissions = Lists.newArrayList();
 }

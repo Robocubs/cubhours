@@ -28,6 +28,7 @@ import com.robocubs.cubhours.CubHours;
 import com.robocubs.cubhours.slack.commands.ConfigCommand;
 import com.robocubs.cubhours.slack.commands.DoorbellCommand;
 import com.robocubs.cubhours.slack.commands.HelpCommand;
+import com.robocubs.cubhours.slack.commands.HereCommand;
 import com.robocubs.cubhours.slack.commands.InfoCommand;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
@@ -62,7 +63,8 @@ public class SlackHandler {
                 new InfoCommand(),
                 new HelpCommand(),
                 new ConfigCommand(),
-                new DoorbellCommand()
+                new DoorbellCommand(),
+                new HereCommand()
         ));
 
         new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).startAsync();

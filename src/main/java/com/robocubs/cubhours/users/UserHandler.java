@@ -27,13 +27,15 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UserHandler {
     @Getter
     private static final UserHandler instance = new UserHandler();
 
-    private final Map<Integer, User> users = Maps.newHashMap();
+    private final Map<User, TimeSlot> activeUsers = Maps.newHashMap();
 
     private UserHandler() {
     }
@@ -56,64 +58,19 @@ public class UserHandler {
          */
     }
 
-    /**
-     * Checks and grabs user data from cloud/cache
-     *
-     * @param id User ID
-     */
-    public void submit(String id) {
-        /*
-        if(doesUserExist(id)) {
-            try {
-                if(userJSONWriter.fetch(id).name == null) {
-                    System.out.println("Generating new user!");
-                    JSONObject j = (JSONObject) new JSONParser().parse(db.get("users/"+id).body);
-                    currentUser = new User((String) j.get("name"), id);
-                    userJSONWriter.add(currentUser);
-                } else {
-                    System.out.println("Fetching user!");
-                    currentUser = userJSONWriter.fetch(id);
-                }
+    public void createUser(String id, String displayName, String slackId, String roleId) {
 
-                entryManager.setUserUpdate(true, currentUser, TimeManager.getInstance().isUserSignedIn(id));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        } else {
-            entryManager.setUserUpdate(false, new User("", id), false);
-        }
-
-         */
     }
 
     /**
-     * @param id ID of User
-     * @return Returns true if user is registered in firebase, false if not
-     */
-    public boolean doesUserExist(String id) {
-        /*
-        //Check cache
-        DataPacket u = db.get("users/"+id);
-        System.out.println(u.body);
-        return !db.get("users/"+id).body.equals("null");
-
-         */
-        return false;
-    }
-
-    /**
-     * Fetches a user object from the local cache
+     * Gets a list of active users by name
      *
-     * @param id of the user
-     * @return {@link User} instance if exists, null if not
+     * @return A list of active users
      */
-    public User getUser(@NonNull String id) {
-
-        try {
-            return getUser(Integer.parseInt(id));
-        } catch (NumberFormatException ignored) {
-            return null;
-        }
+    public List<String> getActiveUsersAsNames() {
+        return activeUsers.keySet().stream()
+                .map(User::getName)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -123,7 +80,7 @@ public class UserHandler {
      * @return {@link User} instance if exists, null if not
      */
     @SneakyThrows
-    public User getUser(Integer id) {
-        return DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", String.valueOf(id), User.class);
+    public User getUser(@NonNull String id) {
+        return DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", id, User.class);
     }
 }
