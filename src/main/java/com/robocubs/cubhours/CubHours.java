@@ -20,22 +20,13 @@
 
 package com.robocubs.cubhours;
 
-import com.google.api.client.util.Lists;
-import com.google.gson.Gson;
 import com.noahhusby.lib.application.config.Configuration;
 import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.SlackHandler;
-import com.robocubs.cubhours.users.TimeSlot;
-import com.robocubs.cubhours.users.User;
 import com.robocubs.cubhours.users.UserHandler;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.Getter;
-
-import java.util.Map;
 
 /**
  * @author Noah Husby

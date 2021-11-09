@@ -25,7 +25,6 @@ import com.robocubs.cubhours.slack.SlackHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class User {
     private List<TimeSlot> timeSlots = Lists.newArrayList();
 
     public com.slack.api.model.User getAsSlackUser() {
-        if(slackId == null) {
+        if (slackId == null) {
             return null;
         }
         return SlackHandler.getInstance().getUser(slackId);

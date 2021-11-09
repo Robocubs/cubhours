@@ -33,7 +33,7 @@ import com.slack.api.bolt.response.Response;
 public class DoorbellCommand extends SlackCommand {
     @Override
     public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
-        if(CubConfig.cloudSettings.doorbell) {
+        if (CubConfig.cloudSettings.doorbell) {
             return context.ack(":bell: Ringing the doorbell!");
             //TODO: Ring the doorbell
         } else {

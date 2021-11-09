@@ -36,11 +36,11 @@ public class HereCommand extends SlackCommand {
     @Override
     public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
         List<String> names = UserHandler.getInstance().getActiveUsersAsNames();
-        if(names.isEmpty()) {
+        if (names.isEmpty()) {
             return context.ack(":notebook: There is nobody signed in.");
         }
         StringBuilder message = new StringBuilder("**Signed In: " + names.get(0));
-        for(int i = 1; i < names.size(); i++) {
+        for (int i = 1; i < names.size(); i++) {
             message.append(", ");
             message.append(names.get(i));
         }

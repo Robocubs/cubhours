@@ -21,9 +21,7 @@
 package com.robocubs.cubhours.users;
 
 import com.google.api.client.util.Maps;
-import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.robocubs.cubhours.CubHours;
 import com.robocubs.cubhours.database.DatabaseHandler;
 import lombok.Getter;
 import lombok.NonNull;
@@ -67,7 +65,7 @@ public class UserHandler {
     }
 
     public void fetchRoles() {
-        for(QueryDocumentSnapshot document : DatabaseHandler.getInstance().getFirebase().getDocuments("roles")) {
+        for (QueryDocumentSnapshot document : DatabaseHandler.getInstance().getFirebase().getDocuments("roles")) {
             try {
                 roles.put(document.getId(), DatabaseHandler.getInstance().getFirebase().getDocumentAs("roles", document.getId(), Role.class));
             } catch (Exception e) {

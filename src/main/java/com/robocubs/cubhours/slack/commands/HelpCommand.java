@@ -20,7 +20,6 @@
 
 package com.robocubs.cubhours.slack.commands;
 
-import com.google.api.client.util.Lists;
 import com.robocubs.cubhours.slack.SlackCommand;
 import com.robocubs.cubhours.util.CubUtil;
 import com.slack.api.bolt.App;

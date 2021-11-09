@@ -51,6 +51,6 @@ public class CubConfig {
     public static CloudSettings cloudSettings = new CloudSettings();
 
     public static class CloudSettings {
-      public boolean doorbell = true;
+        public boolean doorbell = true;
     }
 }

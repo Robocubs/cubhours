@@ -20,10 +20,8 @@
 
 package com.robocubs.cubhours.database;
 
-import com.google.gson.Gson;
 import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.CubHours;
-import com.robocubs.cubhours.users.User;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -52,11 +50,11 @@ public class DatabaseHandler {
 
     private void initialize() {
         CubHours.getLogger().info("Starting to initialize the database");
-        if(!firebase.doesCollectionExist("config")) {
+        if (!firebase.doesCollectionExist("config")) {
             CubHours.getLogger().info("Creating config settings in the cloud");
             pushConfigSettings();
         }
-        if(!firebase.doesCollectionExist("users")) {
+        if (!firebase.doesCollectionExist("users")) {
             //firebase.setDocument("users", "123456", new User(123456, "Sample Student", User.Type.STUDENT));
         }
         fetchConfigSettings();

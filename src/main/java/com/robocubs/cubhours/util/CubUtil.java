@@ -29,13 +29,9 @@ import com.slack.api.model.block.composition.MarkdownTextObject;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.composition.PlainTextObject;
 import com.slack.api.model.block.composition.TextObject;
-import com.slack.api.model.block.element.CheckboxesElement;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,8 +77,8 @@ public class CubUtil {
     @SneakyThrows
     public static JsonElement getBlock(String block, Map<String, String> placeholders) {
         String content = Resources.toString(CubUtil.class.getResource("/blocks/" + block + ".json"), Charsets.UTF_8);
-        if(placeholders != null) {
-            for(Map.Entry<String, String> entry : placeholders.entrySet()) {
+        if (placeholders != null) {
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 content = content.replace("%%" + entry.getKey() + "%%", entry.getValue());
             }
         }

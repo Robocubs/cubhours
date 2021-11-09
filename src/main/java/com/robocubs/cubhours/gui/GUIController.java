@@ -215,7 +215,7 @@ public class GUIController implements javafx.fxml.Initializable {
 
         scanMessage = CubConfig.scan ? "Enter or scan an ID #" : "Enter an ID #";
 
-        if(CubConfig.scan) {
+        if (CubConfig.scan) {
             CubUtil.newSingleThreadScheduledExecutor("focus-checker").scheduleAtFixedRate(() -> {
                 if (!id_entry.isFocused()) {
                     Platform.runLater(() -> id_entry.requestFocus());

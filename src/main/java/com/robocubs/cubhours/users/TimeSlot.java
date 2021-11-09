@@ -36,7 +36,7 @@ public class TimeSlot {
     private LocalDateTime end;
 
     public void end() {
-        if(end == null) {
+        if (end == null) {
             end = LocalDateTime.now();
         }
     }

@@ -23,14 +23,12 @@ package com.robocubs.cubhours.slack.commands;
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.IBlockActionHandler;
 import com.robocubs.cubhours.slack.IModalHandler;
 import com.robocubs.cubhours.slack.SlackCommand;
 import com.robocubs.cubhours.users.Role;
-import com.robocubs.cubhours.users.User;
 import com.robocubs.cubhours.users.UserHandler;
 import com.robocubs.cubhours.users.UserPermission;
 import com.robocubs.cubhours.util.CubUtil;
@@ -66,7 +64,6 @@ import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 import lombok.SneakyThrows;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,22 +91,22 @@ public class ConfigCommand extends SlackCommand implements IBlockActionHandler, 
     @Override
     public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
         View currentView = request.getPayload().getView();
-        if(id.equals("settings")) {
+        if (id.equals("settings")) {
             showSettingsMenu(request, context);
-        } else if(id.equals("settings-doorbell")) {
+        } else if (id.equals("settings-doorbell")) {
             CubConfig.cloudSettings.doorbell = !CubConfig.cloudSettings.doorbell;
             DatabaseHandler.getInstance().pushConfigSettings();
             showSettingsMenu(request, context);
-        } else if(id.equals("settings-return")) {
+        } else if (id.equals("settings-return")) {
             //showConfigMenu(request, context);
-        } else if(id.equals("roles")) {
+        } else if (id.equals("roles")) {
             String roleName = request.getPayload().getActions().get(0).getSelectedOption().getValue();
             try {
                 ViewsUpdateResponse requ = context.client().viewsUpdate(r ->
                         r.viewId(currentView.getId())
                                 .hash(currentView.getHash())
                                 .view(buildRoleEditView(roleName == "new" ? null : UserHandler.getInstance().getRoles().get(roleName))));
-                for(String x : requ.getResponseMetadata().getMessages()) {
+                for (String x : requ.getResponseMetadata().getMessages()) {
                     System.out.println(x);
                 }
             } catch (IOException | SlackApiException e) {
@@ -148,20 +145,20 @@ public class ConfigCommand extends SlackCommand implements IBlockActionHandler, 
         List<LayoutBlock> blocks = new ArrayList<>();
         blocks.add(new SectionBlock(new MarkdownTextObject("*Hi!* Here's how I can help you:", false), null, null, null));
         blocks.add(new DividerBlock());
-        if(permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.SETTINGS)) {
+        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.SETTINGS)) {
             ButtonElement element = new ButtonElement(new PlainTextObject("Change Settings", false), "config-settings", null, null, null, null);
             blocks.add(new SectionBlock(new MarkdownTextObject(":gear: *Settings*\nManage your team settings", false), "config-category-settings", null, element));
 
         }
-        if(permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.USERS)) {
+        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.USERS)) {
             UsersSelectElement element = new UsersSelectElement(new PlainTextObject("Choose user", true), "config-users", null, null);
             blocks.add(new SectionBlock(new MarkdownTextObject(":bust_in_silhouette: *Users*\nManage your team users", false), null, null, element));
         }
-        if(permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.ROLES)) {
+        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.ROLES)) {
             List<OptionObject> roles = Lists.newArrayList();
             StaticSelectElement element = new StaticSelectElement(new PlainTextObject("Choose role", true), "config-roles", roles, null, null, null);
             roles.add(new OptionObject(new PlainTextObject(":pencil2: Add a new role", true), "new", null, null));
-            for(Map.Entry<String, Role> entry : UserHandler.getInstance().getRoles().entrySet()) {
+            for (Map.Entry<String, Role> entry : UserHandler.getInstance().getRoles().entrySet()) {
                 roles.add(new OptionObject(new PlainTextObject(entry.getValue().getName(), true), entry.getKey(), null, null));
             }
             blocks.add(new SectionBlock(new MarkdownTextObject(":busts_in_silhouette: *Roles*\nManage your team roles", false), null, null, element));
@@ -182,34 +179,34 @@ public class ConfigCommand extends SlackCommand implements IBlockActionHandler, 
         view.setPrivateMetadata(newRole ? null : role.getName());
         List<LayoutBlock> blocks = new ArrayList<>();
         {
-            PlainTextInputElement element = new PlainTextInputElement("config-roles-edit-name", new PlainTextObject("What should the role be named?", false),newRole ? null : role.getName(),false,null,null,null);
+            PlainTextInputElement element = new PlainTextInputElement("config-roles-edit-name", new PlainTextObject("What should the role be named?", false), newRole ? null : role.getName(), false, null, null, null);
             blocks.add(new InputBlock("config-roles-edit-name-parent", new PlainTextObject("What should the role be named?", false), element, null, null, false));
         }
         {
             List<OptionObject> options = Lists.newArrayList();
             List<OptionObject> initialOptions = Lists.newArrayList();
             options.add(CubUtil.composeOptionObject("*Admin*", UserPermission.ADMIN.name(), "Give the user access to all CubHours options."));
-            if(!newRole && role.getPermissions().contains(UserPermission.ADMIN)) {
+            if (!newRole && role.getPermissions().contains(UserPermission.ADMIN)) {
                 initialOptions.add(options.get(0));
             }
             options.add(CubUtil.composeOptionObject("*Settings*", UserPermission.SETTINGS.name(), "Give the user access to change settings."));
-            if(!newRole && role.getPermissions().contains(UserPermission.SETTINGS)) {
+            if (!newRole && role.getPermissions().contains(UserPermission.SETTINGS)) {
                 initialOptions.add(options.get(1));
             }
             options.add(CubUtil.composeOptionObject("*Users*", UserPermission.USERS.name(), "Give the user access to edit users."));
-            if(!newRole && role.getPermissions().contains(UserPermission.USERS)) {
+            if (!newRole && role.getPermissions().contains(UserPermission.USERS)) {
                 initialOptions.add(options.get(2));
             }
             options.add(CubUtil.composeOptionObject("*Roles*", UserPermission.ROLES.name(), "Give the user access to edit roles."));
-            if(!newRole && role.getPermissions().contains(UserPermission.ROLES)) {
+            if (!newRole && role.getPermissions().contains(UserPermission.ROLES)) {
                 initialOptions.add(options.get(3));
             }
             options.add(CubUtil.composeOptionObject("*Session*", UserPermission.SESSION.name(), "Give the user access to control the current session."));
-            if(!newRole && role.getPermissions().contains(UserPermission.SESSION)) {
+            if (!newRole && role.getPermissions().contains(UserPermission.SESSION)) {
                 initialOptions.add(options.get(4));
             }
             CheckboxesElement element = new CheckboxesElement("config-roles-edit-checkbox", options, initialOptions.isEmpty() ? null : initialOptions, null);
-            blocks.add(new InputBlock("config-roles-edit-checkbox-parent", new PlainTextObject("Permissions",false), element, null, null, false));
+            blocks.add(new InputBlock("config-roles-edit-checkbox-parent", new PlainTextObject("Permissions", false), element, null, null, false));
         }
         view.setBlocks(blocks);
         return view;
@@ -218,7 +215,7 @@ public class ConfigCommand extends SlackCommand implements IBlockActionHandler, 
     @Override
     public Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback) {
         ViewSubmissionPayload payload = request.getPayload();
-        if(callback.equals("settings")) {
+        if (callback.equals("settings")) {
             return context.ackWithUpdate(buildConfigView(Lists.newArrayList(UserPermission.ADMIN)));
         } else if (callback.equals("roles")) {
             String formerName = payload.getView().getPrivateMetadata();
@@ -226,7 +223,7 @@ public class ConfigCommand extends SlackCommand implements IBlockActionHandler, 
             String name = values.get("config-roles-edit-name-parent").get("config-roles-edit-name").getValue();
             ViewState.Value permissionState = values.get("config-roles-edit-checkbox-parent").get("config-roles-edit-checkbox");
             List<UserPermission> permissions = Lists.newArrayList();
-            for(ViewState.SelectedOption option : permissionState.getSelectedOptions()) {
+            for (ViewState.SelectedOption option : permissionState.getSelectedOptions()) {
                 permissions.add(UserPermission.valueOf(option.getValue()));
             }
             UserHandler.getInstance().getRoles().remove(formerName.toLowerCase(Locale.ROOT));
