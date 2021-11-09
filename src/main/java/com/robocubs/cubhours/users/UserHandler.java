@@ -21,6 +21,8 @@
 package com.robocubs.cubhours.users;
 
 import com.google.api.client.util.Maps;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.robocubs.cubhours.CubHours;
 import com.robocubs.cubhours.database.DatabaseHandler;
 import lombok.Getter;
@@ -35,6 +37,8 @@ public class UserHandler {
     @Getter
     private static final UserHandler instance = new UserHandler();
 
+    @Getter
+    private final Map<String, Role> roles = Maps.newHashMap();
     private final Map<User, TimeSlot> activeUsers = Maps.newHashMap();
 
     private UserHandler() {
@@ -60,6 +64,16 @@ public class UserHandler {
 
     public void createUser(String id, String displayName, String slackId, String roleId) {
 
+    }
+
+    public void fetchRoles() {
+        for(QueryDocumentSnapshot document : DatabaseHandler.getInstance().getFirebase().getDocuments("roles")) {
+            try {
+                roles.put(document.getId(), DatabaseHandler.getInstance().getFirebase().getDocumentAs("roles", document.getId(), Role.class));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

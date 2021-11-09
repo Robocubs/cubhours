@@ -27,6 +27,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import lombok.Getter;
 import lombok.NonNull;
@@ -36,6 +37,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class Firebase implements Closeable {
 
@@ -88,6 +90,13 @@ public class Firebase implements Closeable {
             return documentSnapshot.toObject(clazz);
         }
         return null;
+    }
+
+    @SneakyThrows
+    public List<QueryDocumentSnapshot> getDocuments(@NonNull String collection) {
+        ApiFuture<QuerySnapshot> future = database.collection(collection).get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        return documents;
     }
 
     @SneakyThrows

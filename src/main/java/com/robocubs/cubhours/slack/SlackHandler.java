@@ -77,9 +77,7 @@ public class SlackHandler {
         });
         if(command instanceof IBlockActionHandler) {
             for(String id : ((IBlockActionHandler) command).getBlockActionIds()) {
-                app.blockAction(command.getName() + "-" + id, (req, ctx) ->  {
-                    return ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id);
-                });
+                app.blockAction(command.getName() + "-" + id, (req, ctx) -> ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id));
             }
         }
         if(command instanceof IModalHandler) {

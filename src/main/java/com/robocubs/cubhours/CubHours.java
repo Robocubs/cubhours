@@ -27,6 +27,7 @@ import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.users.TimeSlot;
 import com.robocubs.cubhours.users.User;
+import com.robocubs.cubhours.users.UserHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -50,6 +51,7 @@ public class CubHours extends Application {
         Configuration configuration = Configuration.of(CubConfig.class);
         configuration.sync(CubConfig.class);
         DatabaseHandler.getInstance().start();
+        UserHandler.getInstance().fetchRoles();
         SlackHandler.getInstance().start();
 
         //Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));

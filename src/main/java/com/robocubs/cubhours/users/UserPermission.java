@@ -21,5 +21,5 @@
 package com.robocubs.cubhours.users;
 
 public enum UserPermission {
-    ADMIN, SETTINGS, USERS, ROLES, CLEAR_SESSION
+    ADMIN, SETTINGS, USERS, ROLES, SESSION
 }
