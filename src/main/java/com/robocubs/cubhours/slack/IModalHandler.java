@@ -18,33 +18,23 @@
  *
  */
 
-package com.robocubs.cubhours.client;
+package com.robocubs.cubhours.slack;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.DefaultContext;
+import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
+import com.slack.api.bolt.response.Response;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+/**
+ * @author Noah Husby
+ */
+public interface IModalHandler {
+    Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback);
 
-@Getter
-@RequiredArgsConstructor
-public class TimePacket {
+    Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback);
 
-    private final String name;
-    private final String id;
-    private final LocalDateTime start = LocalDateTime.now();
-    private LocalDateTime end;
+    String[] getModalCallbacks();
 
-    public void end() {
-        this.end = LocalDateTime.now();
-    }
-
-    public double getDifference() {
-        if (end == null) {
-            return 0.0;
-        }
-
-        Duration d = Duration.between(start, end);
-        return (d.toMillis() / 3600000.0);
-    }
 }

@@ -108,6 +108,7 @@ public class UserHandler {
      * @return {@link User} instance if exists, null if not
      */
     public User getUser(@NonNull String id) {
+
         try {
             return getUser(Integer.parseInt(id));
         } catch (NumberFormatException ignored) {

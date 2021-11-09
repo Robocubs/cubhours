@@ -21,6 +21,7 @@
 package com.robocubs.cubhours.database;
 
 import com.google.gson.Gson;
+import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.CubHours;
 import com.robocubs.cubhours.users.User;
 import lombok.Getter;
@@ -51,9 +52,14 @@ public class DatabaseHandler {
 
     private void initialize() {
         CubHours.getLogger().info("Starting to initialize the database");
-        if(!firebase.doesCollectionExist("users")) {
-            firebase.setDocument("users", "123456", new User(123456, "Sample Student", User.Type.STUDENT));
+        if(!firebase.doesCollectionExist("config")) {
+            CubHours.getLogger().info("Creating config settings in the cloud");
+            pushConfigSettings();
         }
+        if(!firebase.doesCollectionExist("users")) {
+            //firebase.setDocument("users", "123456", new User(123456, "Sample Student", User.Type.STUDENT));
+        }
+        fetchConfigSettings();
         fetchUserCache();
         CubHours.getLogger().info("Finished initializing the database");
     }
@@ -61,6 +67,19 @@ public class DatabaseHandler {
     @SneakyThrows
     private void fetchUserCache() {
 
+    }
+
+    public void pushConfigSettings() {
+        firebase.setDocument("config", "settings", CubConfig.cloudSettings);
+    }
+
+    public void fetchConfigSettings() {
+        try {
+            CubConfig.cloudSettings = firebase.getDocumentAs("config", "settings", CubConfig.CloudSettings.class);
+        } catch (Exception e) {
+            CubHours.getLogger().info("Failed to fetch the config settings from the cloud.");
+            e.printStackTrace();
+        }
     }
 
     public void close() {

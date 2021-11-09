@@ -18,39 +18,30 @@
  *
  */
 
-package com.robocubs.cubhours;
+package com.robocubs.cubhours.users;
 
-import com.noahhusby.lib.application.config.Config;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * @author Noah Husby
  */
-@Config()
-public class CubConfig {
-    @Config.Comment({
-            "Enable external scanner mode [E.g. Barcode]"
-    })
-    public static boolean scan = true;
+@NoArgsConstructor
+@AllArgsConstructor
+public class TimeSlot {
+    private LocalDateTime start = LocalDateTime.now();
+    private LocalDateTime end;
 
-    @Config.Comment({
-            "Enable slack support"
-    })
-    public static boolean enable_slack_support = true;
+    public void end() {
+        if(end == null) {
+            end = LocalDateTime.now();
+        }
+    }
 
-    @Config.Comment({
-            "The bot token for slack support"
-    })
-    public static String slack_bot_token = "";
-
-    @Config.Comment({
-            "The app token for slack support"
-    })
-    public static String slack_app_token = "";
-
-    @Config.Ignore
-    public static CloudSettings cloudSettings = new CloudSettings();
-
-    public static class CloudSettings {
-      public boolean doorbell = true;
+    public long getHours() {
+        return ChronoUnit.HOURS.between(end == null ? LocalDateTime.now() : end, start);
     }
 }

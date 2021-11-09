@@ -20,20 +20,29 @@
 
 package com.robocubs.cubhours.users;
 
+import com.google.api.client.util.Lists;
+import com.robocubs.cubhours.slack.SlackHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class User {
-    private int id;
+    private String id;
+    private String slackId;
     private String name;
-    private Type type;
+    private String roleId = "default";
+    private List<TimeSlot> timeSlots = Lists.newArrayList();
 
-    public enum Type {
-        STUDENT, COACH
+    public com.slack.api.model.User getAsSlackUser() {
+        if(slackId == null) {
+            return null;
+        }
+        return SlackHandler.getInstance().getUser(slackId);
     }
 }

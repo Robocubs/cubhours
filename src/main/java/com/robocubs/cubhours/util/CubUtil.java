@@ -20,6 +20,8 @@
 
 package com.robocubs.cubhours.util;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -29,6 +31,7 @@ import lombok.experimental.UtilityClass;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -39,13 +42,19 @@ import java.util.concurrent.ScheduledExecutorService;
 @UtilityClass
 public class CubUtil {
 
-    @SneakyThrows
     public static JsonElement getBlock(String block) {
-        try (Reader reader = new InputStreamReader(CubUtil.class.getResourceAsStream("/blocks/" + block + ".json"))) {
-            return new Gson().fromJson(reader, JsonElement.class);
-        } catch (Exception ignored) {
-            return null;
+        return getBlock(block, null);
+    }
+
+    @SneakyThrows
+    public static JsonElement getBlock(String block, Map<String, String> placeholders) {
+        String content = Resources.toString(CubUtil.class.getResource("/blocks/" + block + ".json"), Charsets.UTF_8);
+        if(placeholders != null) {
+            for(Map.Entry<String, String> entry : placeholders.entrySet()) {
+                content = content.replace("%%" + entry.getKey() + "%%", entry.getValue());
+            }
         }
+        return new Gson().fromJson(content, JsonElement.class);
     }
 
     public static ExecutorService newSingleThreadExecutor(String name) {

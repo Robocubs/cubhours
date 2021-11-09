@@ -18,39 +18,31 @@
  *
  */
 
-package com.robocubs.cubhours;
+package com.robocubs.cubhours.slack.commands;
 
-import com.noahhusby.lib.application.config.Config;
+import com.robocubs.cubhours.CubConfig;
+import com.robocubs.cubhours.slack.SlackCommand;
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.response.Response;
 
 /**
  * @author Noah Husby
  */
-@Config()
-public class CubConfig {
-    @Config.Comment({
-            "Enable external scanner mode [E.g. Barcode]"
-    })
-    public static boolean scan = true;
+public class DoorbellCommand extends SlackCommand {
+    @Override
+    public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
+        if(CubConfig.cloudSettings.doorbell) {
+            return context.ack(":bell: Ringing the doorbell!");
+            //TODO: Ring the doorbell
+        } else {
+            return context.ack(":warning: The doorbell is disabled!");
+        }
+    }
 
-    @Config.Comment({
-            "Enable slack support"
-    })
-    public static boolean enable_slack_support = true;
-
-    @Config.Comment({
-            "The bot token for slack support"
-    })
-    public static String slack_bot_token = "";
-
-    @Config.Comment({
-            "The app token for slack support"
-    })
-    public static String slack_app_token = "";
-
-    @Config.Ignore
-    public static CloudSettings cloudSettings = new CloudSettings();
-
-    public static class CloudSettings {
-      public boolean doorbell = true;
+    @Override
+    public String getName() {
+        return "doorbell";
     }
 }

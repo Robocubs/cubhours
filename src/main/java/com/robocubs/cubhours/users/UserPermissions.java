@@ -18,44 +18,8 @@
  *
  */
 
-package com.robocubs.cubhours;
+package com.robocubs.cubhours.users;
 
-import com.robocubs.cubhours.client.TimePacket;
-import lombok.Getter;
-
-import java.util.ArrayList;
-
-public class TimeManager {
-
-    @Getter
-    private static final TimeManager instance = new TimeManager();
-
-    private TimeManager() {
-    }
-
-    private final ArrayList<TimePacket> userTimeTracker = new ArrayList<>();
-
-    public void startTracker(String id, String name) {
-        userTimeTracker.add(new TimePacket(name, id));
-    }
-
-    public void endTracker(String id) {
-        for (TimePacket t : userTimeTracker) {
-            if (t.getId().equals(id)) {
-                t.end();
-                userTimeTracker.remove(t);
-                return;
-            }
-        }
-    }
-
-    public boolean isUserSignedIn(String id) {
-        for (TimePacket t : userTimeTracker) {
-            if (t.getId().equals(id)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+public enum UserPermissions {
+    ADMIN, SETTINGS, USERS, ROLES, CLEAR_SESSION
 }

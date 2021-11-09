@@ -22,14 +22,18 @@ package com.robocubs.cubhours.slack;
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
+import com.google.gson.GsonBuilder;
 import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.CubHours;
 import com.robocubs.cubhours.slack.commands.ConfigCommand;
+import com.robocubs.cubhours.slack.commands.DoorbellCommand;
 import com.robocubs.cubhours.slack.commands.HelpCommand;
 import com.robocubs.cubhours.slack.commands.InfoCommand;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.socket_mode.SocketModeApp;
+import com.slack.api.methods.response.users.UsersInfoResponse;
+import com.slack.api.model.User;
 import com.slack.api.socket_mode.SocketModeClient;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -57,10 +61,11 @@ public class SlackHandler {
         registerCommands(Lists.newArrayList(
                 new InfoCommand(),
                 new HelpCommand(),
-                new ConfigCommand()
+                new ConfigCommand(),
+                new DoorbellCommand()
         ));
 
-        new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).start();
+        new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).startAsync();
     }
 
     public void registerCommand(SlackCommand command) {
@@ -70,7 +75,16 @@ public class SlackHandler {
         });
         if(command instanceof IBlockActionHandler) {
             for(String id : ((IBlockActionHandler) command).getBlockActionIds()) {
-                app.blockAction(command.getName() + "-" + id, (req, ctx) -> ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id));
+                app.blockAction(command.getName() + "-" + id, (req, ctx) ->  {
+                    return ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id);
+                });
+            }
+        }
+        if(command instanceof IModalHandler) {
+            IModalHandler modalHandler = (IModalHandler) command;
+            for(String callback : modalHandler.getModalCallbacks()) {
+                app.viewSubmission(command.getName() + "-" + callback, (req, ctx) -> modalHandler.onViewSubmission(app, req, ctx, callback));
+                app.viewClosed(command.getName() + "-" + callback, (req, ctx) -> modalHandler.onViewClosed(app, req, ctx, callback));
             }
         }
     }
@@ -78,6 +92,14 @@ public class SlackHandler {
     public void registerCommands(List<SlackCommand> commandList) {
         for(SlackCommand command : commandList) {
             registerCommand(command);
+        }
+    }
+
+    public User getUser(String id) {
+        try {
+            return app.client().usersInfo(u -> u.user(id).token(CubConfig.slack_bot_token)).getUser();
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }
