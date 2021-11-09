@@ -18,32 +18,18 @@
  *
  */
 
-package com.robocubs.cubhours;
+package com.robocubs.cubhours.slack;
 
-import com.noahhusby.lib.application.config.Config;
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.response.Response;
 
 /**
  * @author Noah Husby
  */
-@Config()
-public class CubConfig {
-    @Config.Comment({
-            "Enable external scanner mode [E.g. Barcode]"
-    })
-    public static boolean scan = true;
+public abstract class SlackCommand {
+    public abstract Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context);
 
-    @Config.Comment({
-            "Enable slack support"
-    })
-    public static boolean enable_slack_support = true;
-
-    @Config.Comment({
-            "The bot token for slack support"
-    })
-    public static String slack_bot_token = "";
-
-    @Config.Comment({
-            "The app token for slack support"
-    })
-    public static String slack_app_token = "";
+    public abstract String getName();
 }

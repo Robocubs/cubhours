@@ -20,10 +20,20 @@
 
 package com.robocubs.cubhours.slack;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.Lists;
+import com.robocubs.cubhours.CubConfig;
+import com.robocubs.cubhours.CubHours;
+import com.robocubs.cubhours.slack.commands.InfoCommand;
 import com.slack.api.bolt.App;
+import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.socket_mode.SocketModeApp;
+import com.slack.api.socket_mode.SocketModeClient;
 import lombok.Getter;
 import lombok.SneakyThrows;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Noah Husby
@@ -38,12 +48,27 @@ public class SlackHandler {
 
     @SneakyThrows
     public void start() {
-        app = new App();
+        AppConfig config = new AppConfig();
+        config.setSingleTeamBotToken(CubConfig.slack_bot_token);
+        app = new App(config);
 
-        app.command("/info", (req, ctx) -> {
-           return null;
+        registerCommands(Lists.newArrayList(
+                new InfoCommand()
+        ));
+
+        new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).start();
+    }
+
+    public void registerCommand(SlackCommand command) {
+        app.command("/" + command.getName(), (req, ctx) -> {
+            CubHours.getLogger().info(req.getPayload().getUserName() + " triggered a slack command: /" + command.getName());
+            return command.onCommand(app, req, ctx);
         });
+    }
 
-        new SocketModeApp(null, null, null).start();
+    public void registerCommands(List<SlackCommand> commandList) {
+        for(SlackCommand command : commandList) {
+            registerCommand(command);
+        }
     }
 }

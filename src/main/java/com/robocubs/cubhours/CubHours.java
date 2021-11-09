@@ -23,6 +23,7 @@ package com.robocubs.cubhours;
 import com.google.gson.Gson;
 import com.noahhusby.lib.application.config.Configuration;
 import com.robocubs.cubhours.database.DatabaseHandler;
+import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.users.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -46,15 +47,16 @@ public class CubHours extends Application {
         logger.info(String.format("Loading CubHours %s", Constants.VERSION));
         Configuration configuration = Configuration.of(CubConfig.class);
         configuration.sync(CubConfig.class);
+        SlackHandler.getInstance().start();
 
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-        primaryStage.setTitle("CubHours " + Constants.VERSION);
-        primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
-        primaryStage.show();
+        //Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
+        //primaryStage.setTitle("CubHours " + Constants.VERSION);
+        //primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
+        //primaryStage.show();
 
-        DatabaseHandler.getInstance().start();
-        User user = DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", "211694", User.class);
-        System.out.println(new Gson().toJson(user));
+        //DatabaseHandler.getInstance().start();
+        //User user = DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", "211694", User.class);
+        //System.out.println(new Gson().toJson(user));
     }
 
     /**

@@ -40,7 +40,7 @@ ext {
     lombokVersion = "1.18.22"
     slackBoltVersion = "1.13.0"
     websocketVersion = "1.1"
-    tyrusStandaloneClientVersion = "2.0.1"
+    tyrusStandaloneClientVersion = "1.18"
 }
 
 version "$cubhoursVersion"

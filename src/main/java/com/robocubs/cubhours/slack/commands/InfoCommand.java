@@ -18,34 +18,35 @@
  *
  */
 
-package com.robocubs.cubhours.util;
+package com.robocubs.cubhours.slack.commands;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.experimental.UtilityClass;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import com.robocubs.cubhours.Constants;
+import com.robocubs.cubhours.slack.SlackCommand;
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.response.Response;
 
 /**
  * @author Noah Husby
  */
-@UtilityClass
-public class CubUtil {
-
-    public static ExecutorService newSingleThreadExecutor(String name) {
-        return Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+public class InfoCommand extends SlackCommand {
+    @Override
+    public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
+        StringBuilder message = new StringBuilder("*CubHours v");
+        message.append(Constants.VERSION);
+        message.append("* by Noah Husby");
+        message.append("\n");
+        message.append("*JDK:* ");
+        message.append(System.getProperty("java.version"));
+        message.append("\n");
+        message.append("*OS:* ");
+        message.append(System.getProperty("os.name"));
+        return context.ack(message.toString());
     }
 
-    public static ScheduledExecutorService newSingleThreadScheduledExecutor(String name) {
-        return Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
-    }
-
-    public static ExecutorService newThreadPoolExecutor(int threads, String name) {
-        return Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
-    }
-
-    public static ScheduledExecutorService newThreadPoolScheduledExecutor(int threads, String name) {
-        return Executors.newScheduledThreadPool(threads, new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+    @Override
+    public String getName() {
+        return "info";
     }
 }
