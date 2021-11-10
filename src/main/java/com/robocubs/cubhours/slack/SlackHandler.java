@@ -28,15 +28,12 @@ import com.robocubs.cubhours.slack.commands.DoorbellCommand;
 import com.robocubs.cubhours.slack.commands.HelpCommand;
 import com.robocubs.cubhours.slack.commands.HereCommand;
 import com.robocubs.cubhours.slack.commands.InfoCommand;
-import com.robocubs.cubhours.slack.modals.ConfigModal;
-import com.robocubs.cubhours.users.UserPermission;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.context.builtin.ActionContext;
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.response.Response;
 import com.slack.api.bolt.socket_mode.SocketModeApp;
 import com.slack.api.methods.SlackApiException;
@@ -47,7 +44,9 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Noah Husby
@@ -103,15 +102,29 @@ public class SlackHandler {
     }
 
     private void openModal(Modal modal) {
-        for(String actionId : modal.getActionIds()) {
-            app.blockAction(modal.getName() + "-" + actionId, (req, ctx) -> modal.onBlockAction(app, req, ctx, actionId));
-            app.viewSubmission(modal.getName() + "-" + actionId, (req, ctx) -> modal.onViewSubmission(app, req, ctx, actionId));
-            app.viewClosed(modal.getName() + "-" + actionId, (req, ctx) -> modal.onViewClosed(app, req, ctx, actionId));
+        for (String actionId : modal.getActionIds()) {
+            String eventId = String.format("%s_%s_%s", modal.getName(), actionId, modal.getSalt());
+            app.blockAction(eventId, (req, ctx) -> modal.onBlockAction(app, req, ctx, actionId));
+            app.viewSubmission(eventId, (req, ctx) -> modal.onViewSubmission(app, req, ctx, actionId));
+            app.viewClosed(eventId, (req, ctx) -> modal.onViewClosed(app, req, ctx, actionId));
         }
-        if(modal.getActionIds().length == 0) {
-            app.blockAction(modal.getName(), (req, ctx) -> modal.onBlockAction(app, req, ctx, modal.getName()));
-            app.viewSubmission(modal.getName(), (req, ctx) -> modal.onViewSubmission(app, req, ctx, modal.getName()));
-            app.viewClosed(modal.getName(), (req, ctx) -> modal.onViewClosed(app, req, ctx, modal.getName()));
+    }
+
+    public void closeModal(Modal modal) {
+        try {
+            for (String actionId : modal.getActionIds()) {
+                String eventId = String.format("%s_%s_%s", modal.getName(), actionId, modal.getSalt());
+                Field blockActionHandlerField = App.class.getDeclaredField("blockActionHandlers");
+                Field viewSubmissionHandlerField = App.class.getDeclaredField("viewSubmissionHandlers");
+                Field viewClosedHandlerField = App.class.getDeclaredField("viewClosedHandlers");
+                for (Field f : Lists.newArrayList(blockActionHandlerField, viewSubmissionHandlerField, viewClosedHandlerField)) {
+                    f.setAccessible(true);
+                    Map<?, ?> map = (Map<?, ?>) f.get(app);
+                    map.remove(eventId);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

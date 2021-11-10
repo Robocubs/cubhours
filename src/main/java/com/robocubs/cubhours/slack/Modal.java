@@ -20,6 +20,7 @@
 
 package com.robocubs.cubhours.slack;
 
+import com.robocubs.cubhours.util.CubUtil;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.context.builtin.ActionContext;
 import com.slack.api.bolt.context.builtin.DefaultContext;
@@ -34,6 +35,7 @@ import com.slack.api.model.view.ViewClose;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -46,10 +48,13 @@ import java.util.List;
 @AllArgsConstructor
 public abstract class Modal {
     protected final String title;
-    protected final String callback;
     protected String submit = "Done";
     protected String close = "Close";
     protected String privateMetadata;
+
+    @Getter
+    private final String salt = CubUtil.getSaltString();
+    private final String callback = createActionId("callback");
 
     public abstract String getName();
 
@@ -62,6 +67,14 @@ public abstract class Modal {
     public abstract Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id);
 
     protected abstract void setup(List<LayoutBlock> blocks);
+
+    public void close() {
+        SlackHandler.getInstance().closeModal(this);
+    }
+
+    protected String createActionId(String id) {
+        return String.format("%s_%s_%s", getName(), id, getSalt());
+    }
 
     public View view() {
         View view = new View();

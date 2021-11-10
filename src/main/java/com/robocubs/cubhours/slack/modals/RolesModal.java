@@ -58,7 +58,7 @@ public class RolesModal extends Modal {
     private final List<OptionObject> initialOptions = Lists.newArrayList();
 
     public RolesModal(Role role) {
-        super(role == null ? "Create a role" : "Edit \"" + role.getName() + "\"", "roles-callback");
+        super(role == null ? "Create a role" : "Edit \"" + role.getName() + "\"");
         this.submit = "Save";
         this.privateMetadata = role == null ? null : role.getName();
         this.role = role;

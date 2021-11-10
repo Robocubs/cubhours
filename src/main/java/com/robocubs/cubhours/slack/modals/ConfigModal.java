@@ -21,8 +21,6 @@
 package com.robocubs.cubhours.slack.modals;
 
 import com.google.common.collect.Lists;
-import com.robocubs.cubhours.CubConfig;
-import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.users.Role;
@@ -56,7 +54,7 @@ public class ConfigModal extends Modal {
     private final List<UserPermission> permissions;
 
     public ConfigModal(List<UserPermission> permissions) {
-        super("CubHours", "config-callback");
+        super("CubHours");
         this.permissions = permissions;
     }
 
@@ -72,19 +70,23 @@ public class ConfigModal extends Modal {
 
     @Override
     public Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback) {
+        close();
         return context.ack();
     }
 
     @Override
     public Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback) {
+        close();
         return context.ack();
     }
 
     @Override
     public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
         if (id.equals("settings")) {
+            close();
             SlackHandler.getInstance().openModal(new SettingsModal(), request, context);
         } else if (id.equals("roles")) {
+            close();
             String roleName = request.getPayload().getActions().get(0).getSelectedOption().getValue();
             SlackHandler.getInstance().openModal(new RolesModal(roleName.equals("new") ? null : UserHandler.getInstance().getRoles().get(roleName)), request, context);
         }
@@ -96,16 +98,16 @@ public class ConfigModal extends Modal {
         blocks.add(CubUtil.composeSectionBlock("*Hi!* Here's how I can help you:"));
         blocks.add(new DividerBlock());
         if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.SETTINGS)) {
-            ButtonElement element = new ButtonElement(new PlainTextObject("Change Settings", false), "config-settings", null, null, null, null);
+            ButtonElement element = new ButtonElement(new PlainTextObject("Change Settings", false), createActionId("settings"), null, null, null, null);
             blocks.add(CubUtil.composeSectionBlock(":gear: *Settings*\nManage your team settings", "config-category-settings", element));
         }
         if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.USERS)) {
-            UsersSelectElement element = new UsersSelectElement(new PlainTextObject("Choose user", true), "config-users", null, null);
+            UsersSelectElement element = new UsersSelectElement(new PlainTextObject("Choose user", true), createActionId("users"), null, null);
             blocks.add(CubUtil.composeSectionBlock(":bust_in_silhouette: *Users*\nManage your team users", null, element));
         }
         if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.ROLES)) {
             List<OptionObject> roles = Lists.newArrayList();
-            StaticSelectElement element = new StaticSelectElement(new PlainTextObject("Choose role", true), "config-roles", roles, null, null, null);
+            StaticSelectElement element = new StaticSelectElement(new PlainTextObject("Choose role", true), createActionId("roles"), roles, null, null, null);
             roles.add(new OptionObject(new PlainTextObject(":pencil2: Add a new role", true), "new", null, null));
             for (Map.Entry<String, Role> entry : UserHandler.getInstance().getRoles().entrySet()) {
                 roles.add(new OptionObject(new PlainTextObject(entry.getValue().getName(), true), entry.getKey(), null, null));
