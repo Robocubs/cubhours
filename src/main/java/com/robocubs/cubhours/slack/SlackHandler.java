@@ -28,14 +28,25 @@ import com.robocubs.cubhours.slack.commands.DoorbellCommand;
 import com.robocubs.cubhours.slack.commands.HelpCommand;
 import com.robocubs.cubhours.slack.commands.HereCommand;
 import com.robocubs.cubhours.slack.commands.InfoCommand;
+import com.robocubs.cubhours.slack.modals.ConfigModal;
+import com.robocubs.cubhours.users.UserPermission;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
+import com.slack.api.bolt.context.builtin.ActionContext;
+import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.response.Response;
 import com.slack.api.bolt.socket_mode.SocketModeApp;
+import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.User;
+import com.slack.api.model.view.View;
 import com.slack.api.socket_mode.SocketModeClient;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -67,23 +78,48 @@ public class SlackHandler {
         new SocketModeApp(CubConfig.slack_app_token, SocketModeClient.Backend.Tyrus, app).startAsync();
     }
 
+    public Response openModal(Modal modal, ViewSubmissionContext context) {
+        openModal(modal);
+        return context.ackWithUpdate(modal.view());
+    }
+
+    public void openModal(Modal modal, SlashCommandContext context) {
+        openModal(modal);
+        try {
+            context.client().viewsOpen(r -> r.triggerId(context.getTriggerId()).view(modal.view()));
+        } catch (IOException | SlackApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void openModal(Modal modal, BlockActionRequest request, ActionContext context) {
+        openModal(modal);
+        try {
+            View currentView = request.getPayload().getView();
+            context.client().viewsUpdate(r -> r.viewId(currentView.getId()).hash(currentView.getHash()).view(modal.view()));
+        } catch (IOException | SlackApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openModal(Modal modal) {
+        for(String actionId : modal.getActionIds()) {
+            app.blockAction(modal.getName() + "-" + actionId, (req, ctx) -> modal.onBlockAction(app, req, ctx, actionId));
+            app.viewSubmission(modal.getName() + "-" + actionId, (req, ctx) -> modal.onViewSubmission(app, req, ctx, actionId));
+            app.viewClosed(modal.getName() + "-" + actionId, (req, ctx) -> modal.onViewClosed(app, req, ctx, actionId));
+        }
+        if(modal.getActionIds().length == 0) {
+            app.blockAction(modal.getName(), (req, ctx) -> modal.onBlockAction(app, req, ctx, modal.getName()));
+            app.viewSubmission(modal.getName(), (req, ctx) -> modal.onViewSubmission(app, req, ctx, modal.getName()));
+            app.viewClosed(modal.getName(), (req, ctx) -> modal.onViewClosed(app, req, ctx, modal.getName()));
+        }
+    }
+
     public void registerCommand(SlackCommand command) {
         app.command("/" + command.getName(), (req, ctx) -> {
             CubHours.getLogger().info(req.getPayload().getUserName() + " triggered a slack command: /" + command.getName());
             return command.onCommand(app, req, ctx);
         });
-        if (command instanceof IBlockActionHandler) {
-            for (String id : ((IBlockActionHandler) command).getBlockActionIds()) {
-                app.blockAction(command.getName() + "-" + id, (req, ctx) -> ((IBlockActionHandler) command).onBlockAction(app, req, ctx, id));
-            }
-        }
-        if (command instanceof IModalHandler) {
-            IModalHandler modalHandler = (IModalHandler) command;
-            for (String callback : modalHandler.getModalCallbacks()) {
-                app.viewSubmission(command.getName() + "-" + callback, (req, ctx) -> modalHandler.onViewSubmission(app, req, ctx, callback));
-                app.viewClosed(command.getName() + "-" + callback, (req, ctx) -> modalHandler.onViewClosed(app, req, ctx, callback));
-            }
-        }
     }
 
     public void registerCommands(List<SlackCommand> commandList) {

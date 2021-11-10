@@ -21,11 +21,22 @@
 package com.robocubs.cubhours.slack.modals;
 
 import com.google.common.collect.Lists;
+import com.robocubs.cubhours.CubConfig;
+import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
+import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.users.Role;
 import com.robocubs.cubhours.users.UserHandler;
 import com.robocubs.cubhours.users.UserPermission;
 import com.robocubs.cubhours.util.CubUtil;
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.ActionContext;
+import com.slack.api.bolt.context.builtin.DefaultContext;
+import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
+import com.slack.api.bolt.response.Response;
 import com.slack.api.model.block.DividerBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
@@ -45,8 +56,39 @@ public class ConfigModal extends Modal {
     private final List<UserPermission> permissions;
 
     public ConfigModal(List<UserPermission> permissions) {
-        super("CubHours", "config-general");
+        super("CubHours", "config-callback");
         this.permissions = permissions;
+    }
+
+    @Override
+    public String getName() {
+        return "config";
+    }
+
+    @Override
+    public String[] getActionIds() {
+        return new String[]{ "settings", "users", "roles", "callback" };
+    }
+
+    @Override
+    public Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback) {
+        return context.ack();
+    }
+
+    @Override
+    public Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback) {
+        return context.ack();
+    }
+
+    @Override
+    public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
+        if (id.equals("settings")) {
+            SlackHandler.getInstance().openModal(new SettingsModal(), request, context);
+        } else if (id.equals("roles")) {
+            String roleName = request.getPayload().getActions().get(0).getSelectedOption().getValue();
+            SlackHandler.getInstance().openModal(new RolesModal(roleName.equals("new") ? null : UserHandler.getInstance().getRoles().get(roleName)), request, context);
+        }
+        return context.ack();
     }
 
     @Override

@@ -20,6 +20,14 @@
 
 package com.robocubs.cubhours.slack;
 
+import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.ActionContext;
+import com.slack.api.bolt.context.builtin.DefaultContext;
+import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
+import com.slack.api.bolt.response.Response;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewClose;
@@ -42,6 +50,16 @@ public abstract class Modal {
     protected String submit = "Done";
     protected String close = "Close";
     protected String privateMetadata;
+
+    public abstract String getName();
+
+    public abstract String[] getActionIds();
+
+    public abstract Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback);
+
+    public abstract Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback);
+
+    public abstract Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id);
 
     protected abstract void setup(List<LayoutBlock> blocks);
 
