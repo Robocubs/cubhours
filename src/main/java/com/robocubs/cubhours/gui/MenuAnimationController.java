@@ -18,8 +18,15 @@
  *
  */
 
-package com.robocubs.cubhours.users;
+package com.robocubs.cubhours.gui;
 
-public enum UserPermission {
-    ADMIN, SETTINGS, USERS, ROLES, SESSION, NONE
+/**
+ * @author Noah Husby
+ */
+public class MenuAnimationController {
+
+
+    public enum Mode {
+        NONE, SESSION_ONLY, KEYPAD_ONLY, KEYPAD_AND_SESSION
+    }
 }

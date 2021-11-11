@@ -21,6 +21,7 @@
 package com.robocubs.cubhours.slack.modals;
 
 import com.google.common.collect.Lists;
+import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.users.Role;
@@ -80,14 +81,18 @@ public class RolesModal extends Modal {
         String formerName = payload.getView().getPrivateMetadata();
         Map<String, Map<String, ViewState.Value>> values = payload.getView().getState().getValues();
         String name = values.get("roles-edit-name-parent").get("roles-edit-name").getValue();
+        name = name.strip().replace(" ", "");
         ViewState.Value permissionState = values.get("roles-edit-checkbox-parent").get("roles-edit-checkbox");
         List<UserPermission> permissions = Lists.newArrayList();
         for (ViewState.SelectedOption option : permissionState.getSelectedOptions()) {
             permissions.add(UserPermission.valueOf(option.getValue()));
         }
-        UserHandler.getInstance().getRoles().remove(formerName.toLowerCase(Locale.ROOT));
+        if (formerName != null) {
+            UserHandler.getInstance().getRoles().remove(formerName.toLowerCase(Locale.ROOT));
+        }
         UserHandler.getInstance().getRoles().put(name.toLowerCase(Locale.ROOT), new Role(name, permissions));
-
+        DatabaseHandler.getInstance().pushRoles();
+        close();
         return SlackHandler.getInstance().openModal(new ConfigModal(Lists.newArrayList(UserPermission.ADMIN)), context);
     }
 
@@ -114,6 +119,7 @@ public class RolesModal extends Modal {
             setupPermission("*Users*", "Give the user access to edit users.", UserPermission.USERS);
             setupPermission("*Roles*", "Give the user access to edit roles.", UserPermission.ROLES);
             setupPermission("*Session*", "Give the user access to control the current session.", UserPermission.SESSION);
+            setupPermission("*None*", null, UserPermission.NONE);
             CheckboxesElement element = new CheckboxesElement("roles-edit-checkbox", options, initialOptions.isEmpty() ? null : initialOptions, null);
             blocks.add(new InputBlock("roles-edit-checkbox-parent", new PlainTextObject("Permissions", false), element, null, null, false));
         }
@@ -121,7 +127,7 @@ public class RolesModal extends Modal {
 
     private void setupPermission(String title, String description, UserPermission permission) {
         OptionObject option = CubUtil.composeOptionObject(title, permission.name(), description);
-        if (role != null && (role.getPermissions().contains(UserPermission.ADMIN) || role.getPermissions().contains(permission))) {
+        if (role != null && ((role.getPermissions().contains(UserPermission.ADMIN) && permission != UserPermission.NONE) || role.getPermissions().contains(permission) || (initialOptions.isEmpty() && permission == UserPermission.NONE))) {
             initialOptions.add(option);
         }
         options.add(option);

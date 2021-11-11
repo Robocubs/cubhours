@@ -18,8 +18,47 @@
  *
  */
 
-package com.robocubs.cubhours.users;
+@font-face {
+    src: url("fonts/OpenSans-Light.ttf");
+}
 
-public enum UserPermission {
-    ADMIN, SETTINGS, USERS, ROLES, SESSION, NONE
+@font-face {
+    src: url("fonts/OpenSans-Regular.ttf");
+}
+
+@font-face {
+    src: url("fonts/Exo2-Bold.ttf");
+}
+
+@font-face {
+    src: url("fonts/Roboto-Bold.ttf");
+}
+
+@font-face {
+    src: url("fonts/Roboto-Regular.ttf");
+}
+
+.clock_status {
+    -fx-font-size: 20px;
+    -fx-font-family: "Open Sans";
+}
+
+.menu_card {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.25), 4, 0, -4, 4);
+}
+
+.clock {
+    -fx-font-family: "Roboto Bold";
+    -fx-font-size: 130px;
+    -fx-line-spacing: -50px;
+}
+
+.clock_primary {
+    -fx-font-family: "Roboto Bold";
+    -fx-font-size: 130px;
+    -fx-line-spacing: -50px;
+}
+
+.front_context {
+    -fx-font-family: Roboto;
 }

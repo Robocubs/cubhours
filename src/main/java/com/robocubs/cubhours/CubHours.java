@@ -21,10 +21,12 @@
 package com.robocubs.cubhours;
 
 import com.noahhusby.lib.application.config.Configuration;
-import com.robocubs.cubhours.database.DatabaseHandler;
-import com.robocubs.cubhours.slack.SlackHandler;
-import com.robocubs.cubhours.users.UserHandler;
+import com.robocubs.cubhours.gui.GUIController;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.Getter;
 
@@ -38,17 +40,25 @@ public class CubHours extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        System.out.println();
         logger.info(String.format("Loading CubHours %s", Constants.VERSION));
         Configuration configuration = Configuration.of(CubConfig.class);
         configuration.sync(CubConfig.class);
-        DatabaseHandler.getInstance().start();
-        UserHandler.getInstance().fetchRoles();
-        SlackHandler.getInstance().start();
+        //DatabaseHandler.getInstance().start();
+        //SlackHandler.getInstance().start();
 
-        //Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-        //primaryStage.setTitle("CubHours " + Constants.VERSION);
-        //primaryStage.setScene(new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight()));
-        //primaryStage.show();
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
+        root.getStylesheets().add(getClass().getResource("/fontstyle.css").toExternalForm());
+        primaryStage.setTitle("CubHours " + Constants.VERSION);
+        primaryStage.setMinHeight(768);
+        primaryStage.setMinWidth(1024);
+        Scene scene = new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight());
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> GUIController.getInstance().resizeElements(primaryStage.getWidth(), primaryStage.getHeight());
+        primaryStage.widthProperty().addListener(stageSizeListener);
+        primaryStage.heightProperty().addListener(stageSizeListener);
 
         //User user = DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", "211694", User.class);
         //System.out.println(new Gson().toJson(user));

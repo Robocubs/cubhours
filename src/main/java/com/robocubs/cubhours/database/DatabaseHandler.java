@@ -20,13 +20,18 @@
 
 package com.robocubs.cubhours.database;
 
+import com.google.api.client.util.Maps;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.robocubs.cubhours.CubConfig;
 import com.robocubs.cubhours.CubHours;
+import com.robocubs.cubhours.users.Role;
+import com.robocubs.cubhours.users.UserHandler;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author Noah Husby
@@ -59,12 +64,31 @@ public class DatabaseHandler {
         }
         fetchConfigSettings();
         fetchUserCache();
+        fetchRoles();
         CubHours.getLogger().info("Finished initializing the database");
     }
 
     @SneakyThrows
     private void fetchUserCache() {
 
+    }
+
+    public void fetchRoles() {
+        Map<String, Role> roles = Maps.newHashMap();
+        for (QueryDocumentSnapshot document : DatabaseHandler.getInstance().getFirebase().getDocuments("roles")) {
+            try {
+                roles.put(document.getId(), DatabaseHandler.getInstance().getFirebase().getDocumentAs("roles", document.getId(), Role.class));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        UserHandler.getInstance().setRoles(roles);
+    }
+
+    public void pushRoles() {
+        for (Map.Entry<String, Role> entry : UserHandler.getInstance().getRoles().entrySet()) {
+            firebase.setDocument("roles", entry.getKey(), entry.getValue());
+        }
     }
 
     public void pushConfigSettings() {
