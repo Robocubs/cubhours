@@ -26,14 +26,15 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * @author Noah Husby
@@ -42,32 +43,31 @@ import java.util.Map;
 public class ClockRenderer {
     private final TextFlow flow;
     private LocalTime lastTime;
-    private List<Map.Entry<String, Boolean>> lastText = Lists.newArrayList();
-    private List<List<Map.Entry<String, Boolean>>> animations = Lists.newArrayList();
+    private List<ClockText> lastPayload = Lists.newArrayList();
+    private List<List<ClockText>> animations = Lists.newArrayList();
     private boolean isUpdating = false;
+
+    private final String placeholder = " ";
 
     public void update() {
         try {
-            LocalTime now = LocalTime.now();
             if (!isUpdateRequired() && !isUpdating) {
                 return;
             }
-            lastTime = now;
-            if (lastText.isEmpty()) {
-                lastText = generatePrompt();
-                render(lastText);
+            lastTime = LocalTime.now();
+            if (lastPayload.isEmpty()) {
+                lastPayload = generatePrompt();
+                render(lastPayload);
                 return;
             }
             if (!isUpdating) {
                 isUpdating = true;
                 animations = createPromptAnimation();
             }
-
             if (animations.isEmpty()) {
                 isUpdating = false;
                 return;
             }
-
             render(animations.get(0));
             animations.remove(0);
         } catch (Exception e) {
@@ -76,33 +76,39 @@ public class ClockRenderer {
     }
 
 
-    private List<List<Map.Entry<String, Boolean>>> createPromptAnimation() {
-        List<List<Map.Entry<String, Boolean>>> prompts = Lists.newArrayList();
-        List<Map.Entry<String, Boolean>> goal = generatePrompt();
-        if (lastText.isEmpty()) {
+    private List<List<ClockText>> createPromptAnimation() {
+        List<List<ClockText>> prompts = Lists.newArrayList();
+        List<ClockText> goal = generatePrompt();
+        if (lastPayload.isEmpty()) {
             prompts.add(goal);
             return prompts;
         }
 
-        if (goal.size() == lastText.size()) {
+        if (goal.size() == lastPayload.size()) {
             List<Integer> difference = Lists.newArrayList();
             for (int i = 0; i < goal.size(); i++) {
-                if (!goal.get(i).getKey().equals(lastText.get(i).getKey())) {
+                if (!goal.get(i).getText().equals(lastPayload.get(i).getText())) {
                     difference.add(i);
                 }
             }
+
             if (difference.size() == 1) {
-                Map.Entry<String, Boolean> oldDiff = lastText.get(difference.get(0));
-                String oldDiffText = oldDiff.getKey();
-                Map.Entry<String, Boolean> newDiff = goal.get(difference.get(0));
-                String newDiffText = "";
+                ClockText oldDiff = lastPayload.get(difference.get(0));
+                ClockText newDiff = goal.get(difference.get(0));
+                String newDiffText = newDiff.getText();
+                String oldDiffText = oldDiff.getText();
+                newDiff.setText("");
 
-                while (oldDiffText.length() > 0) {
-                    List<Map.Entry<String, Boolean>> temp = Lists.newArrayList();
+                while (oldDiff.getText().length() > 1) {
+                    List<ClockText> temp = Lists.newArrayList();
                     for (int i = 0; i < goal.size(); i++) {
                         if (difference.get(0) == i) {
-                            oldDiffText = oldDiffText.substring(0, oldDiffText.length() - 1);
-                            temp.add(new AbstractMap.SimpleEntry<>(oldDiffText, oldDiff.getValue()));
+                            oldDiff.setText(oldDiff.getText().substring(0, oldDiff.getText().length() - 1));
+                            ClockText oldDiffDup = oldDiff.copy();
+                            while (oldDiffDup.getText().length() < oldDiffText.length()) {
+                                oldDiffDup.setText(oldDiffDup.getText() + placeholder);
+                            }
+                            temp.add(oldDiffDup);
                         } else {
                             temp.add(goal.get(i));
                         }
@@ -110,75 +116,78 @@ public class ClockRenderer {
                     prompts.add(temp);
                 }
 
-                while (newDiffText.length() != newDiff.getKey().length()) {
-                    List<Map.Entry<String, Boolean>> temp = Lists.newArrayList();
+                while (newDiffText.length() != newDiff.getText().length()) {
+                    List<ClockText> temp = Lists.newArrayList();
                     for (int i = 0; i < goal.size(); i++) {
                         if (difference.get(0) == i) {
-                            newDiffText = newDiff.getKey().substring(0, newDiffText.length() + 1);
-                            temp.add(new AbstractMap.SimpleEntry<>(newDiffText, newDiff.getValue()));
+                            newDiff.setText(newDiffText.substring(0, newDiff.getText().length() + 1));
+                            ClockText newDiffDup = newDiff.copy();
+                            newDiffDup.setText(newDiffDup.getText() + String.join("", Collections.nCopies(newDiffText.length() - newDiff.getText().length(), placeholder)));
+                            temp.add(newDiffDup);
                         } else {
                             temp.add(goal.get(i));
                         }
                     }
                     prompts.add(temp);
                 }
-                lastText = goal;
+                lastPayload = goal;
                 return prompts;
             }
         }
 
-        String[] lastTextStrings = new String[lastText.size()];
-        Boolean[] lastTextPrimary = new Boolean[lastText.size()];
-        for (int i = 0; i < lastText.size(); i++) {
-            Map.Entry<String, Boolean> entry = lastText.get(i);
-            lastTextStrings[i] = entry.getKey();
-            lastTextPrimary[i] = entry.getValue();
-        }
-
-        for (int i = lastText.size(); i > 1; i--) {
-            while (lastTextStrings[i - 1].length() > 0) {
-                List<Map.Entry<String, Boolean>> temp = Lists.newArrayList();
-                for (int x = 0; x < lastText.size(); x++) {
-                    if (lastTextStrings[x].length() == 0) {
+        for (int i = lastPayload.size(); i > 1; i--) {
+            while (lastPayload.get(i - 1).getText().length() > 0) {
+                List<ClockText> temp = Lists.newArrayList();
+                for (ClockText clockText : lastPayload) {
+                    if (clockText.getText().length() == 0) {
                         continue;
                     }
-                    temp.add(new AbstractMap.SimpleEntry<>(lastTextStrings[x], lastTextPrimary[x]));
+                    temp.add(clockText.copy());
                 }
-                lastTextStrings[i - 1] = lastTextStrings[i - 1].substring(0, lastTextStrings[i - 1].length() - 1);
+                ClockText temp2 = lastPayload.get(i - 1);
+                temp2.setText(temp2.getText().substring(0, temp2.getText().length() - 1));
                 prompts.add(temp);
             }
         }
 
         String[] goalTextStrings = new String[goal.size()];
-        goalTextStrings[0] = goal.get(0).getKey();
-        for (int i = 1; i < goalTextStrings.length; i++) {
-            goalTextStrings[i] = "";
+        for (int i = 0; i < goalTextStrings.length; i++) {
+            goalTextStrings[i] = goal.get(i).getText();
+            if (i != 0) {
+                goal.get(i).setText("");
+            }
         }
         for (int i = 0; i < goal.size(); i++) {
             if (i == 0) {
-                List<Map.Entry<String, Boolean>> temp = Lists.newArrayList();
+                List<ClockText> temp = Lists.newArrayList();
                 temp.add(goal.get(0));
                 prompts.add(temp);
                 continue;
             }
-            while (!goalTextStrings[i].equals(goal.get(i).getKey())) {
-                List<Map.Entry<String, Boolean>> temp = Lists.newArrayList();
-                for (int x = 0; x < goal.size(); x++) {
-                    if (goalTextStrings[x].length() == 0) {
-                        continue;
+            while (!goalTextStrings[i].equals(goal.get(i).getText())) {
+                List<ClockText> temp = Lists.newArrayList();
+                int x = 0;
+                for (ClockText clockText : goal) {
+                    if (!(x != 0 && goal.get(x).getText().trim().isEmpty() && !goalTextStrings[x].trim().isEmpty())) {
+                        ClockText clockTextDup = clockText.copy();
+                        while (clockTextDup.getText().length() < goalTextStrings[x].length()) {
+                            clockTextDup.setText(clockTextDup.getText() + placeholder);
+                        }
+                        temp.add(clockTextDup);
                     }
-                    temp.add(new AbstractMap.SimpleEntry<>(goalTextStrings[x], goal.get(x).getValue()));
+                    x++;
                 }
-                goalTextStrings[i] = goal.get(i).getKey().substring(0, goalTextStrings[i].length() + 1);
+                ClockText temp2 = goal.get(i);
+                temp2.setText(goalTextStrings[i].substring(0, temp2.getText().length() + 1));
                 prompts.add(temp);
             }
         }
         prompts.add(goal);
-        lastText = goal;
+        lastPayload = goal;
         return prompts;
     }
 
-    private List<Map.Entry<String, Boolean>> generatePrompt() {
+    private List<ClockText> generatePrompt() {
         LocalTime time = LocalTime.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm");
         String[] timeSplit = dateTimeFormatter.format(time).split(":");
@@ -194,43 +203,89 @@ public class ClockRenderer {
                 "twenty eight", "twenty nine", "thirty"
         };
 
-        List<Map.Entry<String, Boolean>> clockText = com.google.common.collect.Lists.newArrayList();
-        clockText.add(new AbstractMap.SimpleEntry<>("it's ", false));
+        List<ClockText> clockTextPayload = Lists.newArrayList();
+        clockTextPayload.add(new ClockText("it's", false));
+        clockTextPayload.add(new ClockText(" ", false));
         if (minute == 0) {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" o' clock", false));
+            clockTextPayload.add(new ClockText(nums[hour], true));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("o'", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("clock", false));
         } else if (minute == 1) {
-            clockText.add(new AbstractMap.SimpleEntry<>("one", true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minute past ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
+            clockTextPayload.add(new ClockText("one", true));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("minute", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("past", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[hour], true));
         } else if (minute == 59) {
-            clockText.add(new AbstractMap.SimpleEntry<>("one", true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minute to ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
+            clockTextPayload.add(new ClockText("one", true));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("minute", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("to", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[(hour % 12) + 1], true));
         } else if (minute == 15) {
-            clockText.add(new AbstractMap.SimpleEntry<>("quarter past ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
+            clockTextPayload.add(new ClockText("quarter", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("past", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[hour], true));
         } else if (minute == 45) {
-            clockText.add(new AbstractMap.SimpleEntry<>("quarter to ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
+            clockTextPayload.add(new ClockText("quarter", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("to", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[(hour % 12) + 1], true));
         } else if (minute <= 30) {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[minute], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minutes past ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
+            String temp = nums[minute];
+            if (temp.contains(" ")) {
+                String[] temp2 = temp.split(" ");
+                clockTextPayload.add(new ClockText(temp2[0], true));
+                clockTextPayload.add(new ClockText(" ", false));
+                clockTextPayload.add(new ClockText(temp2[1], true));
+            } else {
+                clockTextPayload.add(new ClockText(temp, true));
+            }
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("minutes", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("past", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[hour], true));
         } else {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[60 - minute], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minutes to ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
+            String temp = nums[60 - minute];
+            if (temp.contains(" ")) {
+                String[] temp2 = temp.split(" ");
+                clockTextPayload.add(new ClockText(temp2[0], true));
+                clockTextPayload.add(new ClockText(" ", false));
+                clockTextPayload.add(new ClockText(temp2[1], true));
+            } else {
+                clockTextPayload.add(new ClockText(temp, true));
+            }
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("minutes", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText("to", false));
+            clockTextPayload.add(new ClockText(" ", false));
+            clockTextPayload.add(new ClockText(nums[(hour % 12) + 1], true));
         }
-        return clockText;
+        return clockTextPayload;
     }
 
-    private void render(List<Map.Entry<String, Boolean>> clockText) {
+    private void render(List<ClockText> clockTextPayload) {
         List<Node> nodes = com.google.common.collect.Lists.newArrayList();
-        for (Map.Entry<String, Boolean> entry : clockText) {
-            Text text = new Text(entry.getKey().toUpperCase(Locale.ROOT));
-            text.getStyleClass().add("clock");
-            if (entry.getValue()) {
+        for (ClockText clockText : clockTextPayload) {
+            Text text = new Text(clockText.getText().toUpperCase(Locale.ROOT));
+            if (clockText.getText().trim().isEmpty() || clockText.getText().contains("it")) {
+                text.getStyleClass().add("clock_space");
+            } else {
+                text.getStyleClass().add("clock");
+            }
+            if (clockText.isPrimary()) {
                 text.setFill(Color.rgb(173, 46, 60));
             }
             nodes.add(text);
@@ -248,5 +303,16 @@ public class ClockRenderer {
             return true;
         }
         return !(now.getHour() == lastTime.getHour() && now.getMinute() == lastTime.getMinute());
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ClockText {
+        public String text;
+        public final boolean primary;
+
+        public ClockText copy() {
+            return new ClockText(text, primary);
+        }
     }
 }

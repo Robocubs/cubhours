@@ -23,6 +23,9 @@ package com.robocubs.cubhours.gui;
 /**
  * @author Noah Husby
  */
-public class ScaleHelper {
+public class MenuRenderer {
 
+    public enum Mode {
+        NONE, SESSION_ONLY, KEYPAD_ONLY, KEYPAD_AND_SESSION
+    }
 }

@@ -35,6 +35,10 @@
 }
 
 @font-face {
+    src: url("fonts/RobotoMono-Bold.ttf");
+}
+
+@font-face {
     src: url("fonts/Roboto-Regular.ttf");
 }
 
@@ -48,17 +52,21 @@
 }
 
 .clock {
-    -fx-font-family: "Roboto Bold";
+    -fx-font-family: "Roboto Mono Bold";
     -fx-font-size: 130px;
-    -fx-line-spacing: -50px;
+    -fx-line-spacing: -100px;
 }
 
-.clock_primary {
+.clock_space {
     -fx-font-family: "Roboto Bold";
     -fx-font-size: 130px;
-    -fx-line-spacing: -50px;
 }
 
 .front_context {
+    -fx-font-family: Roboto;
+}
+
+.home_tag {
+    -fx-font-size: 36px;
     -fx-font-family: Roboto;
 }

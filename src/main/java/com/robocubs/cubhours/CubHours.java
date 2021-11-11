@@ -54,14 +54,14 @@ public class CubHours extends Application {
         primaryStage.setMinWidth(1024);
         Scene scene = new Scene(root, primaryStage.getMaxWidth(), primaryStage.getMaxHeight());
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
+        primaryStage.setFullScreen(true);
         primaryStage.show();
 
         ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> GUIController.getInstance().resizeElements(primaryStage.getWidth(), primaryStage.getHeight());
         primaryStage.widthProperty().addListener(stageSizeListener);
         primaryStage.heightProperty().addListener(stageSizeListener);
-
-        //User user = DatabaseHandler.getInstance().getFirebase().getDocumentAs("users", "211694", User.class);
-        //System.out.println(new Gson().toJson(user));
+        stageSizeListener.changed(null, null, null);
     }
 
     /**

@@ -20,7 +20,9 @@
   ~
   -->
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="1080.0"
       prefWidth="1920.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8"
@@ -28,10 +30,24 @@
     <children>
         <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
             <children>
-                <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                <VBox fx:id="home_vbox" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                     <children>
-                        <TextFlow fx:id="clock_flow" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="SOMETIMES"/>
+                        <TextFlow fx:id="clock_flow" maxWidth="600.0" prefHeight="200.0" prefWidth="200.0"
+                                  VBox.vgrow="NEVER">
+                            <VBox.margin>
+                                <Insets/>
+                            </VBox.margin>
+                        </TextFlow>
+                        <Text fx:id="home_tag" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="home_tag"
+                              text="Scan your ID, or tap the screen to clock in">
+                            <VBox.margin>
+                                <Insets left="10.0"/>
+                            </VBox.margin>
+                        </Text>
                     </children>
+                    <HBox.margin>
+                        <Insets left="50.0" top="50.0"/>
+                    </HBox.margin>
                 </VBox>
                 <Pane id="menu_card" fx:id="menu_card" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
                       prefWidth="200.0" styleClass="menu_card"/>

@@ -65,7 +65,7 @@ dependencies {
 
 shadowJar {
     manifest {
-        attributes( 'Implementation-Version': "${version}" )
+        attributes('Implementation-Version': "${version}")
     }
 }
 

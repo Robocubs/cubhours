@@ -31,7 +31,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -39,18 +38,15 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import lombok.Getter;
 
 import java.net.URL;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -223,6 +219,9 @@ public class GUIController implements javafx.fxml.Initializable {
     @FXML
     private TextFlow clock_flow;
 
+    @FXML
+    private VBox home_vbox;
+
     /*
      * JavaFX Events
      */
@@ -232,6 +231,8 @@ public class GUIController implements javafx.fxml.Initializable {
         instance = this;
         menu_card.setBackground(new Background(new BackgroundFill(Color.rgb(173, 46, 60, 0.10), new CornerRadii(16, 0, 0, 16, false), Insets.EMPTY)));
         ClockRenderer clockRenderer = new ClockRenderer(clock_flow);
+        clock_flow.setLineSpacing(-30);
+        clock_flow.setPrefWidth(Region.USE_COMPUTED_SIZE);
         CubUtil.newSingleThreadScheduledExecutor("clock").scheduleAtFixedRate(clockRenderer::update, 0, 100, TimeUnit.MILLISECONDS);
         /*
         id_entry.setFocusTraversable(false);
@@ -256,65 +257,12 @@ public class GUIController implements javafx.fxml.Initializable {
 
     public void resizeElements(double width, double height) {
         menu_card.setPrefWidth(Math.min((int) width * (30 / 100.0f), 452));
-    }
-
-    public void updateClock() {
-        LocalTime time = LocalTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm");
-        String[] timeSplit = dateTimeFormatter.format(time).split(":");
-        int hour = Integer.parseInt(timeSplit[0]);
-        int minute = Integer.parseInt(timeSplit[1]);
-        String[] nums = { "zero", "one", "two", "three", "four",
-                "five", "six", "seven", "eight", "nine",
-                "ten", "eleven", "twelve", "thirteen",
-                "fourteen", "fifteen", "sixteen", "seventeen",
-                "eighteen", "nineteen", "twenty", "twenty one",
-                "twenty two", "twenty three", "twenty four",
-                "twenty five", "twenty six", "twenty seven",
-                "twenty eight", "twenty nine",
-        };
-
-        List<Map.Entry<String, Boolean>> clockText = Lists.newArrayList();
-        clockText.add(new AbstractMap.SimpleEntry<>("it's ", false));
-        if (minute == 0) {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" o' clock", false));
-        } else if (minute == 1) {
-            clockText.add(new AbstractMap.SimpleEntry<>("one", true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minute past ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
-        } else if (minute == 59) {
-            clockText.add(new AbstractMap.SimpleEntry<>("one", true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minute to ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
-        } else if (minute == 15) {
-            clockText.add(new AbstractMap.SimpleEntry<>("quarter past", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
-        } else if (minute == 45) {
-            clockText.add(new AbstractMap.SimpleEntry<>("quarter to", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
-        } else if (minute <= 30) {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[minute], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minutes past ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[hour], true));
-        } else {
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[60 - minute], true));
-            clockText.add(new AbstractMap.SimpleEntry<>(" minutes to ", false));
-            clockText.add(new AbstractMap.SimpleEntry<>(nums[(hour % 12) + 1], true));
+        {
+            double halfVboxWidth = Math.max((home_vbox.getWidth() / 3) * 2, 700);
+            clock_flow.setMinWidth(halfVboxWidth);
+            clock_flow.setPrefWidth(halfVboxWidth);
+            clock_flow.setMaxWidth(halfVboxWidth);
         }
-        List<Node> nodes = Lists.newArrayList();
-        for (Map.Entry<String, Boolean> entry : clockText) {
-            Text text = new Text(entry.getKey().toUpperCase(Locale.ROOT));
-            text.getStyleClass().add("clock");
-            if (entry.getValue()) {
-                text.setFill(Color.rgb(173, 46, 60));
-            }
-            nodes.add(text);
-        }
-        Platform.runLater(() -> {
-            clock_flow.getChildren().clear();
-            clock_flow.getChildren().addAll(nodes);
-        });
     }
 
     @FXML
