@@ -42,4 +42,10 @@ public class Constants {
         public static final Paint red = Paint.valueOf("rgb(255,0,0)");
     }
 
+    public static class Layout {
+        public static final int pixelsPerAnimationCycle = 75;
+        public static final int closedMenu = 5;
+        public static final int sessionMenu = 15;
+        public static final int openMenu = 100;
+    }
 }

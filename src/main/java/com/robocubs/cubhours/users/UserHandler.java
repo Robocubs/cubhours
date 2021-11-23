@@ -66,6 +66,15 @@ public class UserHandler {
     }
 
     /**
+     * Gets whether any users are signed in
+     *
+     * @return True if anyone is signed in, false if not
+     */
+    public boolean isAnyoneSignedIn() {
+        return !activeUsers.isEmpty();
+    }
+
+    /**
      * Gets a list of active users by name
      *
      * @return A list of active users

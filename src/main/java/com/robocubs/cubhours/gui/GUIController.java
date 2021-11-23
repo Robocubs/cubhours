@@ -34,6 +34,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -43,10 +44,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.net.URL;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +61,16 @@ public class GUIController implements javafx.fxml.Initializable {
     private final TimedTrigger notifierClock = new TimedTrigger(this::resetInputFrame, Constants.notificationLength, TimeUnit.SECONDS);
     private final TimedTrigger interactionClock = new TimedTrigger(this::resetInputFrame, Constants.interactionClock, TimeUnit.SECONDS);
 
+    private MenuRenderer menuRenderer;
+
     private String scanMessage;
     private final List<Button> controls = Lists.newArrayList();
 
     private EntryType entryType = EntryType.SCAN;
 
     private String submitId = "";
+
+    private Map.Entry<Double, Double> lastDimensions = null;
 
     /**
      * Sets the current id value based upon a key entry event
@@ -192,6 +201,10 @@ public class GUIController implements javafx.fxml.Initializable {
     @Getter
     private static GUIController instance;
 
+    @Getter
+    @Setter
+    private Stage stage;
+
     @FXML
     private Text id_print;
 
@@ -214,13 +227,18 @@ public class GUIController implements javafx.fxml.Initializable {
     private Text clock;
 
     @FXML
+    @Getter
     private Pane menu_card;
 
     @FXML
+    @Getter
     private TextFlow clock_flow;
 
     @FXML
+    @Getter
     private VBox home_vbox;
+
+    @FXML
 
     /*
      * JavaFX Events
@@ -229,11 +247,14 @@ public class GUIController implements javafx.fxml.Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         instance = this;
+        menuRenderer = new MenuRenderer(this);
+        CubUtil.newSingleThreadScheduledExecutor("menu").scheduleAtFixedRate(menuRenderer::update, 0, 10, TimeUnit.MICROSECONDS);
         menu_card.setBackground(new Background(new BackgroundFill(Color.rgb(173, 46, 60, 0.10), new CornerRadii(16, 0, 0, 16, false), Insets.EMPTY)));
         ClockRenderer clockRenderer = new ClockRenderer(clock_flow);
         clock_flow.setLineSpacing(-30);
         clock_flow.setPrefWidth(Region.USE_COMPUTED_SIZE);
         CubUtil.newSingleThreadScheduledExecutor("clock").scheduleAtFixedRate(clockRenderer::update, 0, 100, TimeUnit.MILLISECONDS);
+        CubUtil.newSingleThreadScheduledExecutor("resizer").scheduleAtFixedRate(this::resizeElements, 0, 50, TimeUnit.MILLISECONDS);
         /*
         id_entry.setFocusTraversable(false);
 
@@ -255,14 +276,33 @@ public class GUIController implements javafx.fxml.Initializable {
          */
     }
 
-    public void resizeElements(double width, double height) {
-        menu_card.setPrefWidth(Math.min((int) width * (30 / 100.0f), 452));
-        {
-            double halfVboxWidth = Math.max((home_vbox.getWidth() / 3) * 2, 700);
-            clock_flow.setMinWidth(halfVboxWidth);
-            clock_flow.setPrefWidth(halfVboxWidth);
-            clock_flow.setMaxWidth(halfVboxWidth);
+    public void resizeElements() {
+        resizeElements(false);
+    }
+
+    public void resizeElements(boolean override) {
+        if(!override && (stage == null || lastDimensions != null && stage.getWidth() == lastDimensions.getKey() && stage.getHeight() == lastDimensions.getValue())) {
+            return;
         }
+        lastDimensions = new AbstractMap.SimpleEntry<>(stage.getWidth(), stage.getHeight());
+        double width = stage.getWidth();
+        double height = stage.getHeight();
+
+        home_vbox.setMinWidth(menuRenderer.isMenuOpened() ? 50 : -1);
+
+        double halfVboxWidth = Math.max((home_vbox.getWidth() / 3) * 2, 700);
+        clock_flow.setMinWidth(halfVboxWidth);
+        clock_flow.setPrefWidth(halfVboxWidth);
+        clock_flow.setMaxWidth(halfVboxWidth);
+    }
+
+    @FXML
+    void onMenuClickedEvent(MouseEvent event) {
+       if(menuRenderer.isMenuOpened()) {
+           menuRenderer.close();
+       } else {
+           menuRenderer.open();
+       }
     }
 
     @FXML

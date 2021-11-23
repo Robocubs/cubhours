@@ -22,6 +22,7 @@ package com.robocubs.cubhours;
 
 import com.noahhusby.lib.application.config.Configuration;
 import com.robocubs.cubhours.gui.GUIController;
+import com.sun.management.HotSpotDiagnosticMXBean;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
@@ -40,7 +41,7 @@ public class CubHours extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        System.out.println();
+
         logger.info(String.format("Loading CubHours %s", Constants.VERSION));
         Configuration configuration = Configuration.of(CubConfig.class);
         configuration.sync(CubConfig.class);
@@ -58,10 +59,8 @@ public class CubHours extends Application {
         primaryStage.setFullScreen(true);
         primaryStage.show();
 
-        ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> GUIController.getInstance().resizeElements(primaryStage.getWidth(), primaryStage.getHeight());
-        primaryStage.widthProperty().addListener(stageSizeListener);
-        primaryStage.heightProperty().addListener(stageSizeListener);
-        stageSizeListener.changed(null, null, null);
+        GUIController.getInstance().setStage(primaryStage);
+        GUIController.getInstance().resizeElements(true);
     }
 
     /**

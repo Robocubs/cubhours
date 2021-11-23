@@ -43,7 +43,7 @@
 }
 
 .clock_status {
-    -fx-font-size: 20px;
+    -fx-font-size: 10px;
     -fx-font-family: "Open Sans";
 }
 
@@ -53,13 +53,13 @@
 
 .clock {
     -fx-font-family: "Roboto Mono Bold";
-    -fx-font-size: 130px;
+    -fx-font-size: 100px;
     -fx-line-spacing: -100px;
 }
 
 .clock_space {
     -fx-font-family: "Roboto Bold";
-    -fx-font-size: 130px;
+    -fx-font-size: 100px;
 }
 
 .front_context {
