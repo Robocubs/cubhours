@@ -35,7 +35,6 @@ import com.slack.api.model.block.element.ButtonElement;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -94,18 +93,9 @@ public class CubUtil {
         return new ButtonElement(new PlainTextObject(text, true), actionId, url, value, style, null);
     }
 
-    public static JsonElement getBlock(String block) {
-        return getBlock(block, null);
-    }
-
     @SneakyThrows
-    public static JsonElement getBlock(String block, Map<String, String> placeholders) {
+    public static JsonElement getBlock(String block) {
         String content = Resources.toString(CubUtil.class.getResource("/blocks/" + block + ".json"), Charsets.UTF_8);
-        if (placeholders != null) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                content = content.replace("%%" + entry.getKey() + "%%", entry.getValue());
-            }
-        }
         return new Gson().fromJson(content, JsonElement.class);
     }
 

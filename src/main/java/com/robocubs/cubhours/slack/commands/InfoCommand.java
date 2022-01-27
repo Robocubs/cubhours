@@ -33,16 +33,15 @@ import com.slack.api.bolt.response.Response;
 public class InfoCommand extends SlackCommand {
     @Override
     public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
-        StringBuilder message = new StringBuilder("*CubHours v");
-        message.append(Constants.VERSION);
-        message.append("* by Noah Husby");
-        message.append("\n");
-        message.append("*JDK:* ");
-        message.append(System.getProperty("java.version"));
-        message.append("\n");
-        message.append("*OS:* ");
-        message.append(System.getProperty("os.name"));
-        return context.ack(message.toString());
+        String message = "*CubHours v" + Constants.VERSION
+                         + "* by Noah Husby"
+                         + "\n"
+                         + "*JDK:* "
+                         + System.getProperty("java.version")
+                         + "\n"
+                         + "*OS:* "
+                         + System.getProperty("os.name");
+        return context.ack(message);
     }
 
     @Override

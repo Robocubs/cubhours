@@ -42,7 +42,7 @@ import java.util.List;
 public class Firebase implements Closeable {
 
     @Getter
-    private Firestore database = null;
+    private Firestore database;
 
     public Firebase(@NonNull File credentials) throws IOException {
         FileInputStream credentialsStream = new FileInputStream(credentials);

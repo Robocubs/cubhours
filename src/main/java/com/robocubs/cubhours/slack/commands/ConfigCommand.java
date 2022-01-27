@@ -20,11 +20,9 @@
 
 package com.robocubs.cubhours.slack.commands;
 
-import com.google.common.collect.Lists;
 import com.robocubs.cubhours.slack.SlackCommand;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.slack.modals.ConfigModal;
-import com.robocubs.cubhours.users.UserPermission;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
@@ -38,7 +36,7 @@ public class ConfigCommand extends SlackCommand {
     @Override
     @SneakyThrows
     public Response onCommand(App app, SlashCommandRequest request, SlashCommandContext context) {
-        SlackHandler.getInstance().openModal(new ConfigModal(Lists.newArrayList(UserPermission.ADMIN)), context);
+        SlackHandler.getInstance().openModal(new ConfigModal(), context);
         return context.ack();
     }
 

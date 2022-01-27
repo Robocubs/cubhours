@@ -23,13 +23,9 @@ package com.robocubs.cubhours.gui;
 import com.robocubs.cubhours.Constants;
 import com.robocubs.cubhours.users.UserHandler;
 import javafx.animation.FadeTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import javax.swing.*;
 
 /**
  * @author Noah Husby
@@ -61,11 +57,11 @@ public class MenuRenderer {
         try {
             // Change current mode depending on current state
             Mode currentMode;
-            if(!openMenu) {
+            if (!openMenu) {
                 currentMode = UserHandler.getInstance().isAnyoneSignedIn() ? Mode.SESSION : Mode.CLOSED;
             } else {
                 currentMode = Mode.OPEN;
-                if(lastMode != currentMode) {
+                if (lastMode != currentMode) {
                     FadeTransition transition = new FadeTransition(Duration.millis(50), controller.getHome_vbox());
                     transition.setFromValue(1.0);
                     transition.setToValue(0.0);
@@ -76,16 +72,16 @@ public class MenuRenderer {
 
             lastMode = currentMode;
 
-            if(controller.getStage() == null) {
+            if (controller.getStage() == null) {
                 return;
             }
 
             double width = (currentMode.getValue() / 100.0) * controller.getStage().getWidth();
             double currentWidth = controller.getMenu_card().getWidth();
-            if(Math.floor(width) != Math.floor(currentWidth)) {
+            if (Math.floor(width) != Math.floor(currentWidth)) {
                 temp = false;
                 double val;
-                if(currentWidth > width) {
+                if (currentWidth > width) {
                     val = currentWidth - Math.min(Constants.Layout.pixelsPerAnimationCycle, currentWidth - width);
                 } else {
                     val = currentWidth + Math.min(Constants.Layout.pixelsPerAnimationCycle, width - currentWidth);
@@ -95,9 +91,9 @@ public class MenuRenderer {
                 controller.getMenu_card().setPrefWidth(val);
                 controller.getMenu_card().setMinWidth(val);
             } else {
-                if(!temp) {
+                if (!temp) {
                     temp = true;
-                    if(!isMenuOpened()) {
+                    if (!isMenuOpened()) {
                         controller.resizeElements(true);
                         FadeTransition transition = new FadeTransition(Duration.millis(200), controller.getHome_vbox());
                         transition.setFromValue(0.0);

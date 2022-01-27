@@ -25,17 +25,19 @@ import com.robocubs.cubhours.slack.SlackHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class User {
     private String id;
-    private String slackId;
     private String name;
-    private String roleId = "default";
+    private String slackId;
+    private boolean admin = false;
     private List<TimeSlot> timeSlots = Lists.newArrayList();
 
     public com.slack.api.model.User getAsSlackUser() {
@@ -43,5 +45,9 @@ public class User {
             return null;
         }
         return SlackHandler.getInstance().getUser(slackId);
+    }
+
+    public boolean isAdmin() {
+        return (slackId != null && getAsSlackUser().isAdmin()) || admin;
     }
 }

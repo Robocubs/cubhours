@@ -32,6 +32,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -239,6 +241,10 @@ public class GUIController implements javafx.fxml.Initializable {
     private VBox home_vbox;
 
     @FXML
+    private ScrollPane userScrollPane;
+
+    @FXML
+    private VBox userVbox;
 
     /*
      * JavaFX Events
@@ -255,6 +261,9 @@ public class GUIController implements javafx.fxml.Initializable {
         clock_flow.setPrefWidth(Region.USE_COMPUTED_SIZE);
         CubUtil.newSingleThreadScheduledExecutor("clock").scheduleAtFixedRate(clockRenderer::update, 0, 100, TimeUnit.MILLISECONDS);
         CubUtil.newSingleThreadScheduledExecutor("resizer").scheduleAtFixedRate(this::resizeElements, 0, 50, TimeUnit.MILLISECONDS);
+        for (int i = 0; i < 200; i++) {
+            userVbox.getChildren().add(new Label(String.valueOf(i)));
+        }
         /*
         id_entry.setFocusTraversable(false);
 
@@ -281,12 +290,16 @@ public class GUIController implements javafx.fxml.Initializable {
     }
 
     public void resizeElements(boolean override) {
-        if(!override && (stage == null || lastDimensions != null && stage.getWidth() == lastDimensions.getKey() && stage.getHeight() == lastDimensions.getValue())) {
+        if (!override && (stage == null || lastDimensions != null && stage.getWidth() == lastDimensions.getKey() && stage.getHeight() == lastDimensions.getValue())) {
             return;
         }
         lastDimensions = new AbstractMap.SimpleEntry<>(stage.getWidth(), stage.getHeight());
         double width = stage.getWidth();
         double height = stage.getHeight();
+
+        userScrollPane.setMinHeight(menu_card.getHeight());
+        userScrollPane.setMaxHeight(menu_card.getHeight());
+        userScrollPane.setPrefHeight(menu_card.getHeight());
 
         home_vbox.setMinWidth(menuRenderer.isMenuOpened() ? 50 : -1);
 
@@ -298,11 +311,11 @@ public class GUIController implements javafx.fxml.Initializable {
 
     @FXML
     void onMenuClickedEvent(MouseEvent event) {
-       if(menuRenderer.isMenuOpened()) {
-           menuRenderer.close();
-       } else {
-           menuRenderer.open();
-       }
+        if (menuRenderer.isMenuOpened()) {
+            menuRenderer.close();
+        } else {
+            menuRenderer.open();
+        }
     }
 
     @FXML

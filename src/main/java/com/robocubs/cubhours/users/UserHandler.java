@@ -24,7 +24,6 @@ import com.google.api.client.util.Maps;
 import com.robocubs.cubhours.database.DatabaseHandler;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.util.List;
@@ -35,9 +34,6 @@ public class UserHandler {
     @Getter
     private static final UserHandler instance = new UserHandler();
 
-    @Getter
-    @Setter
-    private Map<String, Role> roles = Maps.newHashMap();
     private final Map<User, TimeSlot> activeUsers = Maps.newHashMap();
 
     private UserHandler() {

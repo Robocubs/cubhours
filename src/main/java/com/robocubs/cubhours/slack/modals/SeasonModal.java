@@ -25,6 +25,7 @@ import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.util.CubUtil;
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.context.builtin.ActionContext;
 import com.slack.api.bolt.context.builtin.DefaultContext;
@@ -33,59 +34,85 @@ import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.bolt.response.Response;
-import com.slack.api.model.block.DividerBlock;
+import com.slack.api.model.block.InputBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.composition.PlainTextObject;
 import com.slack.api.model.block.element.ButtonElement;
+import com.slack.api.model.block.element.DatePickerElement;
+import com.slack.api.model.block.element.PlainTextInputElement;
+import com.slack.api.model.view.ViewState;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Noah Husby
  */
-public class SettingsModal extends Modal {
-    public SettingsModal() {
-        super(":gear: Settings");
+public class SeasonModal extends Modal {
+
+    private final String season;
+
+    public SeasonModal(String season) {
+        super(season == null ? "Create a role" : "Edit \"" + season + "\"");
+        this.submit = "Save";
+        this.privateMetadata = season;
+        this.season = season;
     }
 
     @Override
     public String getName() {
-        return "settings";
+        return "seasons";
     }
 
     @Override
     public String[] getActionIds() {
-        return new String[]{ "doorbell", "callback" };
+        return new String[]{ "delete", "callback" };
     }
 
     @Override
     public Response onViewSubmission(App app, ViewSubmissionRequest request, ViewSubmissionContext context, String callback) {
+        ViewSubmissionPayload payload = request.getPayload();
+        String formerName = payload.getView().getPrivateMetadata();
+        Map<String, Map<String, ViewState.Value>> values = payload.getView().getState().getValues();
+        String name = values.get("seasons-edit-name-parent").get("seasons-edit-name").getValue();
+        String date = values.get("seasons-edit-date-parent").get("seasons-edit-date").getSelectedDate();
+        if (formerName != null) {
+            CubConfig.cloudSettings.seasons.remove(formerName);
+        }
+        CubConfig.cloudSettings.seasons.put(name, date);
+        DatabaseHandler.getInstance().pushConfigSettings();
         close();
         return SlackHandler.getInstance().openModal(new ConfigModal(), context);
     }
 
     @Override
     public Response onViewClosed(App app, ViewClosedRequest request, DefaultContext context, String callback) {
-        close();
         return context.ack();
     }
 
     @Override
     public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
-        if (id.equals("doorbell")) {
-            CubConfig.cloudSettings.doorbell = !CubConfig.cloudSettings.doorbell;
-            DatabaseHandler.getInstance().pushConfigSettings();
-            close();
-            SlackHandler.getInstance().openModal(new SettingsModal(), request, context);
+        if (id.equals("delete")) {
+            CubConfig.cloudSettings.seasons.remove(season);
+            SlackHandler.getInstance().openModal(new ConfigModal(), request, context);
         }
         return context.ack();
     }
 
     @Override
     protected void setup(List<LayoutBlock> blocks) {
-        blocks.add(new DividerBlock());
+        boolean newSeason = season == null;
         {
-            ButtonElement element = CubUtil.composeButtonElement(CubConfig.cloudSettings.doorbell ? ":white_check_mark: Enabled" : ":x: Disabled", createActionId("doorbell"));
-            blocks.add(CubUtil.composeSectionBlock(":bell: *Doorbell*\nToggle the doorbell command", null, element));
+            PlainTextInputElement element = new PlainTextInputElement("seasons-edit-name", new PlainTextObject("What should the season be named?", false), newSeason ? null : season, false, null, null, null);
+            blocks.add(new InputBlock("seasons-edit-name-parent", new PlainTextObject("What should the role be named?", false), element, null, null, false));
+        }
+        {
+            DatePickerElement element = new DatePickerElement("seasons-edit-date", new PlainTextObject("Select a date", false), newSeason ? null : CubConfig.cloudSettings.seasons.get(season), null);
+            blocks.add(new InputBlock("seasons-edit-date-parent", new PlainTextObject("Start date", false), element, null, null, false));
+        }
+        {
+            ButtonElement element = CubUtil.composeButtonElement("Delete Season", createActionId("delete"));
+            blocks.add(CubUtil.composeSectionBlock("Delete the season", null, element));
         }
     }
 }

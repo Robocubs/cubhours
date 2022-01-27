@@ -20,7 +20,10 @@
 
 package com.robocubs.cubhours;
 
+import com.google.common.collect.Maps;
 import com.noahhusby.lib.application.config.Config;
+
+import java.util.Map;
 
 /**
  * @author Noah Husby
@@ -52,5 +55,7 @@ public class CubConfig {
 
     public static class CloudSettings {
         public boolean doorbell = true;
+        public Map<String, String> seasons = Maps.newHashMap();
+        public Map<String, String> slackLookup = Maps.newHashMap();
     }
 }

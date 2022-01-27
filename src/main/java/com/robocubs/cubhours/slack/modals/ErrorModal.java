@@ -20,8 +20,6 @@
 
 package com.robocubs.cubhours.slack.modals;
 
-import com.robocubs.cubhours.CubConfig;
-import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
 import com.robocubs.cubhours.slack.SlackHandler;
 import com.robocubs.cubhours.util.CubUtil;
@@ -33,28 +31,30 @@ import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.bolt.response.Response;
-import com.slack.api.model.block.DividerBlock;
 import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.element.ButtonElement;
 
 import java.util.List;
 
 /**
  * @author Noah Husby
  */
-public class SettingsModal extends Modal {
-    public SettingsModal() {
-        super(":gear: Settings");
+public class ErrorModal extends Modal {
+
+    private final String error;
+
+    public ErrorModal(String error) {
+        super(":x: Error");
+        this.error = error;
     }
 
     @Override
     public String getName() {
-        return "settings";
+        return "error";
     }
 
     @Override
     public String[] getActionIds() {
-        return new String[]{ "doorbell", "callback" };
+        return new String[]{ "callback" };
     }
 
     @Override
@@ -71,21 +71,11 @@ public class SettingsModal extends Modal {
 
     @Override
     public Response onBlockAction(App app, BlockActionRequest request, ActionContext context, String id) {
-        if (id.equals("doorbell")) {
-            CubConfig.cloudSettings.doorbell = !CubConfig.cloudSettings.doorbell;
-            DatabaseHandler.getInstance().pushConfigSettings();
-            close();
-            SlackHandler.getInstance().openModal(new SettingsModal(), request, context);
-        }
         return context.ack();
     }
 
     @Override
     protected void setup(List<LayoutBlock> blocks) {
-        blocks.add(new DividerBlock());
-        {
-            ButtonElement element = CubUtil.composeButtonElement(CubConfig.cloudSettings.doorbell ? ":white_check_mark: Enabled" : ":x: Disabled", createActionId("doorbell"));
-            blocks.add(CubUtil.composeSectionBlock(":bell: *Doorbell*\nToggle the doorbell command", null, element));
-        }
+        blocks.add(CubUtil.composeSectionBlock(error, null, null));
     }
 }

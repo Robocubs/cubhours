@@ -20,12 +20,14 @@
 
 package com.robocubs.cubhours.slack.modals;
 
+import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
+import com.robocubs.cubhours.CubConfig;
+import com.robocubs.cubhours.database.DatabaseHandler;
 import com.robocubs.cubhours.slack.Modal;
 import com.robocubs.cubhours.slack.SlackHandler;
-import com.robocubs.cubhours.users.Role;
+import com.robocubs.cubhours.users.User;
 import com.robocubs.cubhours.users.UserHandler;
-import com.robocubs.cubhours.users.UserPermission;
 import com.robocubs.cubhours.util.CubUtil;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.context.builtin.ActionContext;
@@ -43,19 +45,19 @@ import com.slack.api.model.block.element.ButtonElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.block.element.UsersSelectElement;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author Noah Husby
  */
 public class ConfigModal extends Modal {
 
-    private final List<UserPermission> permissions;
-
-    public ConfigModal(List<UserPermission> permissions) {
+    public ConfigModal() {
         super("CubHours");
-        this.permissions = permissions;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class ConfigModal extends Modal {
 
     @Override
     public String[] getActionIds() {
-        return new String[]{ "settings", "users", "roles", "callback" };
+        return new String[]{ "settings", "users", "seasons", "callback" };
     }
 
     @Override
@@ -85,10 +87,36 @@ public class ConfigModal extends Modal {
         if (id.equals("settings")) {
             close();
             SlackHandler.getInstance().openModal(new SettingsModal(), request, context);
-        } else if (id.equals("roles")) {
+        } else if (id.equals("seasons")) {
             close();
-            String roleName = request.getPayload().getActions().get(0).getSelectedOption().getValue();
-            SlackHandler.getInstance().openModal(new RolesModal(roleName.equals("new") ? null : UserHandler.getInstance().getRoles().get(roleName)), request, context);
+            String seasonName = request.getPayload().getActions().get(0).getSelectedOption().getValue();
+            SlackHandler.getInstance().openModal(new SeasonModal(seasonName.equals("new") ? null : seasonName), request, context);
+        } else if (id.equals("users")) {
+            close();
+            String slackId = request.getPayload().getActions().get(0).getSelectedUser();
+            com.slack.api.model.User slackUser = SlackHandler.getInstance().getUser(slackId);
+            if (slackUser.isBot() || slackUser.isWorkflowBot() || slackUser.getName().equalsIgnoreCase("slackbot")) {
+                close();
+                SlackHandler.getInstance().openModal(new ErrorModal("Cannot configure an ID for a bot!"), request, context);
+                return context.ack();
+            }
+            if (CubConfig.cloudSettings.slackLookup.containsKey(slackId)) {
+                User user = UserHandler.getInstance().getUser(CubConfig.cloudSettings.slackLookup.get(slackId));
+                if (user != null) {
+                    SlackHandler.getInstance().openModal(new UserModal(user), request, context);
+                } else {
+                    // Somehow, a reverse lookup exists, but the user itself is missing
+                    CubConfig.cloudSettings.slackLookup.remove(slackId);
+                    DatabaseHandler.getInstance().pushConfigSettings();
+                    user = new User();
+                    user.setSlackId(slackId);
+                    SlackHandler.getInstance().openModal(new UserModal(user), request, context);
+                }
+            } else {
+                User user = new User();
+                user.setSlackId(slackId);
+                SlackHandler.getInstance().openModal(new UserModal(user), request, context);
+            }
         }
         return context.ack();
     }
@@ -97,22 +125,27 @@ public class ConfigModal extends Modal {
     protected void setup(List<LayoutBlock> blocks) {
         blocks.add(CubUtil.composeSectionBlock("*Hi!* Here's how I can help you:"));
         blocks.add(new DividerBlock());
-        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.SETTINGS)) {
+        {
             ButtonElement element = new ButtonElement(new PlainTextObject("Change Settings", false), createActionId("settings"), null, null, null, null);
             blocks.add(CubUtil.composeSectionBlock(":gear: *Settings*\nManage your team settings", "config-category-settings", element));
         }
-        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.USERS)) {
+        {
             UsersSelectElement element = new UsersSelectElement(new PlainTextObject("Choose user", true), createActionId("users"), null, null);
             blocks.add(CubUtil.composeSectionBlock(":bust_in_silhouette: *Users*\nManage your team users", null, element));
         }
-        if (permissions.contains(UserPermission.ADMIN) || permissions.contains(UserPermission.ROLES)) {
-            List<OptionObject> roles = Lists.newArrayList();
-            StaticSelectElement element = new StaticSelectElement(new PlainTextObject("Choose role", true), createActionId("roles"), roles, null, null, null);
-            roles.add(new OptionObject(new PlainTextObject(":pencil2: Add a new role", true), "new", null, null));
-            for (Map.Entry<String, Role> entry : UserHandler.getInstance().getRoles().entrySet()) {
-                roles.add(new OptionObject(new PlainTextObject(entry.getValue().getName(), true), entry.getKey(), null, null));
+        {
+            Map<LocalDate, String> seasons = Maps.newHashMap();
+            for (Map.Entry<String, String> entry : CubConfig.cloudSettings.seasons.entrySet()) {
+                seasons.put(LocalDate.parse(entry.getValue()), entry.getKey());
             }
-            blocks.add(CubUtil.composeSectionBlock(":busts_in_silhouette: *Roles*\nManage your team roles", null, element));
+            List<OptionObject> seasonsList = Lists.newArrayList();
+            StaticSelectElement element = new StaticSelectElement(new PlainTextObject("Choose season", true), createActionId("seasons"), seasonsList, null, null, null);
+            seasonsList.add(new OptionObject(new PlainTextObject(":pencil2: Add a new season", true), "new", null, null));
+            SortedSet<LocalDate> sortedKeys = new TreeSet<>(seasons.keySet());
+            for (LocalDate key : sortedKeys) {
+                seasonsList.add(new OptionObject(new PlainTextObject(seasons.get(key), true), seasons.get(key), null, null));
+            }
+            blocks.add(CubUtil.composeSectionBlock(":calendar: *Seasons*\nManage your team's season", null, element));
         }
     }
 }

@@ -20,36 +20,50 @@
   ~
   -->
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.robocubs.cubhours.gui.GUIController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="1080.0"
+      prefWidth="1920.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.robocubs.cubhours.gui.GUIController">
     <children>
         <HBox onMouseClicked="#onMenuClickedEvent" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
             <children>
                 <VBox fx:id="home_vbox" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                     <children>
-                        <TextFlow fx:id="clock_flow" maxWidth="600.0" minWidth="1.0" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="NEVER">
+                        <TextFlow fx:id="clock_flow" maxWidth="600.0" minWidth="1.0" prefHeight="200.0"
+                                  prefWidth="200.0" styleClass="user_scroll_pane" VBox.vgrow="NEVER">
                             <VBox.margin>
-                                <Insets />
+                                <Insets/>
                             </VBox.margin>
                         </TextFlow>
-                        <Text fx:id="home_tag" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="home_tag" text="Scan your ID, or tap the screen to clock in">
+                        <Text fx:id="home_tag" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="home_tag"
+                              text="Scan your ID, or tap the screen to clock in">
                             <VBox.margin>
-                                <Insets left="10.0" />
+                                <Insets left="10.0"/>
                             </VBox.margin>
                         </Text>
                     </children>
                     <HBox.margin>
-                        <Insets left="50.0" top="50.0" />
+                        <Insets left="50.0" top="50.0"/>
                     </HBox.margin>
                 </VBox>
-                <Pane id="menu_card" fx:id="menu_card" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="200.0" styleClass="menu_card" />
+                <Pane id="menu_card" fx:id="menu_card" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                      prefWidth="200.0" styleClass="menu_card">
+                    <children>
+                        <ScrollPane fx:id="userScrollPane" hbarPolicy="NEVER" pannable="true" prefHeight="500.0"
+                                    prefWidth="200.0" vbarPolicy="NEVER">
+                            <content>
+                                <VBox fx:id="userVbox" prefWidth="100.0"/>
+                            </content>
+                            <padding>
+                                <Insets right="10.0"/>
+                            </padding>
+                        </ScrollPane>
+                    </children>
+                </Pane>
             </children>
         </HBox>
     </children>
