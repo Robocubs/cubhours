@@ -35,7 +35,7 @@ ext {
     husbyVersion = "0.1.89"
     gsonVersion = "2.9.0"
     jfoenixVersion = "9.0.10"
-    firebaseVersion = '8.1.0'
+    firebaseVersion = '9.0.0'
     guavaVersion = "31.0.1-jre"
     lombokVersion = "1.18.22"
     slackBoltVersion = "1.14.0"
