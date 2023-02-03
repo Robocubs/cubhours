@@ -37,7 +37,7 @@ ext {
     jfoenixVersion = "9.0.10"
     firebaseVersion = '8.1.0'
     guavaVersion = "31.0.1-jre"
-    lombokVersion = "1.18.22"
+    lombokVersion = "1.18.26"
     slackBoltVersion = "1.14.0"
     websocketVersion = "1.1"
     tyrusStandaloneClientVersion = "2.0.2"
